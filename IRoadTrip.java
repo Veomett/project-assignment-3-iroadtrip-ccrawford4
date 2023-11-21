@@ -2,7 +2,6 @@ import java.util.List;
 
 public class IRoadTrip {
 
-
     public IRoadTrip (String [] args) {
         // Replace with your code
     }
@@ -31,6 +30,7 @@ public class IRoadTrip {
 
         a3.acceptUserInput();
     }
-
 }
+
+
 
