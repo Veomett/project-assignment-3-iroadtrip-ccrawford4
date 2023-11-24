@@ -21,7 +21,7 @@ public class IRoadTrip {
             int arrSize =  (int) borderFile.length();
             try {
                 List<Node> nodes = createNodeList(stateNameFile, arrSize);
-                this.disjointSet = createDisjointSet(borderFile, stateNameFile, nodes);
+                this.disjointSet = createDisjointSet(borderFile, nodes);
             } catch (Exception e) {
                 System.err.println("Error in Main");
             }
