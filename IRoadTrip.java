@@ -1,14 +1,15 @@
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.nio.file.NoSuchFileException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Stream;
+
 
 public class IRoadTrip {
     DisjointSet disjointSet;
+
+    private final String currentDate = "2020-12-31";
+
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
@@ -17,25 +18,49 @@ public class IRoadTrip {
             File capDistFile = new File(args[1]);
             File stateNameFile = new File(args[2]);
 
-            disjointSet =
+            int arrSize =  (int) borderFile.length();
+            try {
+                List<Node> nodes = createNodeList(stateNameFile, arrSize);
+                this.disjointSet = createDisjointSet(borderFile, stateNameFile, nodes);
+            } catch (Exception e) {
+                System.err.println("Error in Main");
+            }
     }
 
-    public DisjointSet createDisjointSet(File borderFile, File stateNameFile) {
-        long numCountries = borderFile.length();
-        DisjointSet disjointSet = new DisjointSet((int) numCountries);
-
+    public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception{
+        DisjointSet result = new DisjointSet(nodes.size());
         try {
-            int i = -1;
-            Node[] nodeArr = new Node[(int) numCountries];
+            Scanner readBorders = new Scanner(borderFile);
+            while (readBorders.hasNextLine()) {
+                String borderData = readBorders.nextLine();
+                int equalIndex = borderData.indexOf('=');
+                String countryName = borderData.substring(0, equalIndex-1);
+                String[] segment = borderData.substring(equalIndex + 2).split(";");
+                // Finish this
+            }
+        }
+        catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Error Parsing File into Disjoint Set");
+        }
+        return result;
+    }
+
+    List<Node> createNodeList (File stateNameFile, int size) throws Exception {
+        List<Node> nodes = new ArrayList<>();
+        try {
+            int check = -1;
             Scanner reader = new Scanner(stateNameFile);
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
-                if (i == -1) { // Accounts for first line
-                    i++;
+                String[] segment = data.split("\t");
+                if (!segment[4].equals(currentDate)) {
                     continue;
                 }
-                String[] segment = data.split("\n");
-                nodeArr[i] = new Node();
+                if (check == -1) { // Accounts for first line
+                    check++;
+                    continue;
+                }
+                nodes.add(new Node());
                 int stateNumber = Integer.parseInt(segment[0]);
                 String stateId = segment[1];
                 String countryName = "";
@@ -51,18 +76,16 @@ public class IRoadTrip {
                     }
                     index++;
                 }
-                nodeArr[i].setStateNumber(stateNumber);
-                nodeArr[i].setStateId(stateId);
-                nodeArr[i].setCountryName(countryName);
-                i++;
+                nodes.get(nodes.size()-1).setStateNumber(stateNumber);
+                nodes.get(nodes.size()-1).setStateId(stateId);
+                nodes.get(nodes.size()-1).setCountryName(countryName);
             }
-
-            
-
         } catch (FileNotFoundException e) {
-            System.out.println("ERROR! File Not Found");
+            throw new FileNotFoundException("Error Parsing File into Node List");
         }
+        return nodes;
     }
+
     public int getDistance (String country1, String country2) {
         // Replace with your code
         return -1;
