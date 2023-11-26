@@ -6,40 +6,75 @@ import java.util.stream.Stream;
 
 public class IRoadTrip {
     DisjointSet disjointSet;
-    private final String currentDate = "2020-12-31";
-    Map<String, Integer> nameToNumber;
-    Map<String, Integer> vertexToCountry;
 
-    File distanceFile;
+    private final String currentDate = "2020-12-31";
 
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
         }
             File borderFile = new File(args[0]);
-            this.distanceFile = new File(args[1]);
             File stateNameFile = new File(args[2]);
 
             try {
-                this.nameToNumber = createMap(stateNameFile);
-                this.vertexToCountry = createVertexMap(nameToNumber);
-                this.disjointSet = createDisjointSet(borderFile);
+                List<Node> nodes = createNodeList(stateNameFile, arrSize);
+                this.disjointSet = createDisjointSet(borderFile, nodes);
             } catch (Exception e) {
                 System.err.println(e.toString());
             }
     }
 
-    public Map<String, Integer> createVertexMap(Map<String, Integer> map) {
-        Map<String, Integer> result = new HashMap<>();
-        int i = 0;
-        for (String key : map.keySet()) {
-            result.put(key, i);
-            i++;
+    public Node findNode(List<Node> nodes, String countryName) {
+        for (Node node : nodes) {
+            if (node.getCountryName().contains(countryName)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public int getBiggestStateNumber(List<Node> nodes) {
+        int maxStateNumber = 0;
+        for (Node node : nodes) {
+            maxStateNumber = Math.max(maxStateNumber, node.getStateNumber());
+        }
+        return maxStateNumber;
+    }
+    public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception {
+        DisjointSet result = new DisjointSet(getBiggestStateNumber(nodes) + 1);
+        try {
+            Scanner readBorders = new Scanner(borderFile);
+            while (readBorders.hasNextLine()) {
+                String borderData = readBorders.nextLine();
+                int equalIndex = borderData.indexOf('=');
+                String countryName = borderData.substring(0, equalIndex - 1).trim();
+                Node parent = findNode(nodes, countryName);
+                if (parent == null) { // Account for if the parent is not found inside the state_name file
+                    continue;
+                }
+                String[] segment = borderData.substring(equalIndex + 2).split(";");
+                for (String country : segment) {
+                    int spaceIndex = country.indexOf(" ");
+                    if (spaceIndex == -1) {
+                        continue;
+                    }
+                    String name = country.substring(0, spaceIndex);
+                    Node child = findNode(nodes, name);
+                    if (child == null) {
+                        continue;
+                    }
+                    result.Union(parent.getStateNumber(), child.getStateNumber());
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            throw new FileNotFoundException("Error Parsing File into Disjoint Set");
         }
         return result;
     }
-    public Map<String, Integer> createMap(File stateNameFile) throws FileNotFoundException {
-        Map<String, Integer> stateInfoMap = new HashMap<>();
+
+    List<Node> createNodeList (File stateNameFile, int size) throws Exception {
+        List<Node> nodes = new ArrayList<>();
         try {
             Scanner reader = new Scanner(stateNameFile);
             while (reader.hasNextLine()) {
@@ -49,6 +84,7 @@ public class IRoadTrip {
                     continue;
                 }
                 int stateNumber = Integer.parseInt(segment[0]);
+                String stateId = segment[1];
                 String countryName = "";
                 int index = 2;
                 while (true) {
@@ -62,12 +98,17 @@ public class IRoadTrip {
                     }
                     index++;
                 }
-                stateInfoMap.put(countryName, stateNumber);
+                Node newNode = new Node();
+                newNode.setStateNumber(stateNumber);
+                newNode.setStateId(stateId);
+                newNode.setCountryName(countryName);
+
+                nodes.add(newNode);
             }
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error Parsing File into Node List");
         }
-        return stateInfoMap;
+        return nodes;
     }
 
     public DisjointSet createDisjointSet(File borderFile) throws Exception {
@@ -116,11 +157,8 @@ public class IRoadTrip {
     }
 
     public int getDistance (String country1, String country2) {
-        if ()
-    }
-
-   public DirectedGraph createGraph(List<Integer> vertices) {
-
+        // Replace with your code
+        return -1;
     }
 
     public List<String> findPath (String country1, String country2) {
