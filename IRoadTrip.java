@@ -10,19 +10,20 @@ public class IRoadTrip {
     Map<String, Integer> nameToNumber;
     Map<String, Integer> vertexToCountry;
 
+    File distanceFile;
+
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
         }
             File borderFile = new File(args[0]);
-            File capDistFile = new File(args[1]);
+            this.distanceFile = new File(args[1]);
             File stateNameFile = new File(args[2]);
 
             try {
                 this.nameToNumber = createMap(stateNameFile);
                 this.vertexToCountry = createVertexMap(nameToNumber);
                 this.disjointSet = createDisjointSet(borderFile);
-                disjointSet.printSetsVertically();
             } catch (Exception e) {
                 System.err.println(e.toString());
             }
@@ -76,8 +77,15 @@ public class IRoadTrip {
             while (readBorders.hasNextLine()) {
                 String borderData = readBorders.nextLine();
                 int equalIndex = borderData.indexOf('=');
-                String parentName = borderData.substring(0, equalIndex - 1).trim();
-                if (!vertexToCountry.containsKey(parentName)) {
+                String parentName = borderData.substring(0, equalIndex - 1);
+                int parentValue = -1;
+                for (String key : vertexToCountry.keySet()) {
+                    if (key.contains(parentName)) {
+                        parentValue = vertexToCountry.get(key);
+                        break;
+                    }
+                }
+                if (parentValue == -1) {
                     continue;
                 }
                 String[] segment = borderData.substring(equalIndex + 2).split(";");
@@ -87,10 +95,17 @@ public class IRoadTrip {
                         continue;
                     }
                     String childName = child.substring(0, spaceIndex);
-                    if (!vertexToCountry.containsKey(childName)) {
+                    Integer childValue = -1;
+                    for (String key : vertexToCountry.keySet()) {
+                        if (key.contains((childName))) {
+                            childValue = vertexToCountry.get(key);
+                            break;
+                        }
+                    }
+                    if (childValue == -1) {
                         continue;
                     }
-                    result.Union(vertexToCountry.get(parentName), vertexToCountry.get(childName));
+                    result.Union(parentValue, childValue);
                 }
             }
         }
@@ -101,12 +116,12 @@ public class IRoadTrip {
     }
 
     public int getDistance (String country1, String country2) {
-        return -1;
+        if ()
     }
 
- /*   public DirectedGraph createGraph(List<Integer> vertices) {
+   public DirectedGraph createGraph(List<Integer> vertices) {
 
-    }*/
+    }
 
     public List<String> findPath (String country1, String country2) {
         // Replace with your code
