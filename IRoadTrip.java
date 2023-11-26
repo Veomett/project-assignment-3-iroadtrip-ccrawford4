@@ -6,27 +6,38 @@ import java.util.stream.Stream;
 
 public class IRoadTrip {
     DisjointSet disjointSet;
-
     private final String currentDate = "2020-12-31";
-
+    List<Node> nodes;
+    File capDistFile;
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
         }
-            File borderFile = new File(args[0]);
-            File stateNameFile = new File(args[2]);
+        File borderFile = new File(args[0]);
+        this.capDistFile = new File(args[1]);
+        File stateNameFile = new File(args[2]);
 
-            try {
-                List<Node> nodes = createNodeList(stateNameFile, arrSize);
-                this.disjointSet = createDisjointSet(borderFile, nodes);
-            } catch (Exception e) {
-                System.err.println(e.toString());
-            }
+        int arrSize =  (int) borderFile.length();
+        try {
+            this.nodes = createNodeList(stateNameFile, arrSize);
+            this.disjointSet = createDisjointSet(borderFile, nodes);
+        } catch (Exception e) {
+            System.err.println(e.toString());
+        }
     }
 
-    public Node findNode(List<Node> nodes, String countryName) {
+    public Node findNodeFromName(String countryName) {
         for (Node node : nodes) {
             if (node.getCountryName().contains(countryName)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public Node findNodeFromNumber(int stateNumber) {
+        for (Node node : nodes) {
+            if (node.getStateNumber() == stateNumber) {
                 return node;
             }
         }
@@ -40,6 +51,7 @@ public class IRoadTrip {
         }
         return maxStateNumber;
     }
+    
     public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception {
         DisjointSet result = new DisjointSet(getBiggestStateNumber(nodes) + 1);
         try {
@@ -48,7 +60,7 @@ public class IRoadTrip {
                 String borderData = readBorders.nextLine();
                 int equalIndex = borderData.indexOf('=');
                 String countryName = borderData.substring(0, equalIndex - 1).trim();
-                Node parent = findNode(nodes, countryName);
+                Node parent = findNodeFromName(countryName);
                 if (parent == null) { // Account for if the parent is not found inside the state_name file
                     continue;
                 }
@@ -59,7 +71,7 @@ public class IRoadTrip {
                         continue;
                     }
                     String name = country.substring(0, spaceIndex);
-                    Node child = findNode(nodes, name);
+                    Node child = findNodeFromName(name);
                     if (child == null) {
                         continue;
                     }
@@ -111,53 +123,61 @@ public class IRoadTrip {
         return nodes;
     }
 
-    public DisjointSet createDisjointSet(File borderFile) throws Exception {
-        DisjointSet result = new DisjointSet(vertexToCountry.size() + 1);
+    public int getDistance (String country1, String country2) {
+        Node nodeOne = findNodeFromName(country1);
+        Node nodeTwo = findNodeFromName(country2);
+        if (nodeOne == null) {
+            System.out.println("ERROR! " + country1 + " is not found.");
+            return -1;
+        }
+        if (nodeTwo == null) {
+            System.out.println("ERROR! " + country2 + " is not found.");
+            return -1;
+        }
+        int parentOne = disjointSet.Find(nodeOne.getStateNumber());
+        int parentTwo = disjointSet.Find(nodeTwo.getStateNumber());
+        if (parentOne != parentTwo) {
+            return -1; // The countries are not connected
+        }
+        DirectedGraph graph = new DirectedGraph(nodes.size());
+        Map<Node, Integer> map = new HashMap<>();
+        int i = 0;
+        for (Node n : nodes) {
+            if (n.getStateNumber() != parentOne) {
+                continue;
+            }
+            map.put(n, i);
+            i++;
+        }
+
         try {
-            Scanner readBorders = new Scanner(borderFile);
-            while (readBorders.hasNextLine()) {
-                String borderData = readBorders.nextLine();
-                int equalIndex = borderData.indexOf('=');
-                String parentName = borderData.substring(0, equalIndex - 1);
-                int parentValue = -1;
-                for (String key : vertexToCountry.keySet()) {
-                    if (key.contains(parentName)) {
-                        parentValue = vertexToCountry.get(key);
-                        break;
-                    }
+            Scanner readable = new Scanner(capDistFile);
+            int count = 0;
+            while (readable.hasNextLine()) {
+                if (count == 0) {
+                    readable.nextLine();
+                    count++;
                 }
-                if (parentValue == -1) {
-                    continue;
-                }
-                String[] segment = borderData.substring(equalIndex + 2).split(";");
-                for (String child : segment) {
-                    int spaceIndex = child.indexOf(" ");
-                    if (spaceIndex == -1) {
+                String data = readable.nextLine();
+                String[] segment = data.split(",");
+                int stateNumber = Integer.parseInt(segment[0]);
+                Node node = findNodeFromNumber(stateNumber);
+                if (map.containsKey(node)) {
+                    int stateNumberTwo = Integer.parseInt(segment[2]);
+                    Node childNode = findNodeFromNumber(stateNumberTwo);
+                    int distance = Integer.parseInt(segment[4]);
+                    if (!map.containsKey(childNode)) {
                         continue;
                     }
-                    String childName = child.substring(0, spaceIndex);
-                    Integer childValue = -1;
-                    for (String key : vertexToCountry.keySet()) {
-                        if (key.contains((childName))) {
-                            childValue = vertexToCountry.get(key);
-                            break;
-                        }
-                    }
-                    if (childValue == -1) {
-                        continue;
-                    }
-                    result.Union(parentValue, childValue);
+                    System.out.println("Test");
+                    graph.addEdge(map.get(node), map.get(childNode), distance);
                 }
             }
-        }
-        catch (FileNotFoundException e) {
-            throw new FileNotFoundException("Error Parsing File into Disjoint Set");
-        }
-        return result;
-    }
 
-    public int getDistance (String country1, String country2) {
-        // Replace with your code
+        } catch (FileNotFoundException e) {
+            System.out.println("ERROR! Cap dist file not found.");
+        }
+        graph.printGraph();
         return -1;
     }
 
@@ -175,10 +195,9 @@ public class IRoadTrip {
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-
+        System.out.println(a3.getDistance("America", "Canada"));
         a3.acceptUserInput();
     }
 }
-
 
 
