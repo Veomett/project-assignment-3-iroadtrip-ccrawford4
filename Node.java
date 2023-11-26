@@ -5,8 +5,8 @@ public class Node {
 
     Node() {
         this.stateNumber = -1;
-        this.stateId = null;
-        this.countryName = null;
+        this.stateId = "";
+        this.countryName = "";
     }
 
     void setStateNumber(int stateNumber) {

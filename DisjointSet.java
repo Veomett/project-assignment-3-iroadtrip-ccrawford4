@@ -1,51 +1,57 @@
 import java.util.Arrays;
 public class DisjointSet {
     public int n;
-    private Node[] setArr;
+    private int[] setArr;
     public DisjointSet(int numItems) {
        n = numItems;
-       setArr = new Node[n];
+       setArr = new int[n];
        for (int i = 0; i < n; i++) {
-           setArr[i] = new Node();
+           setArr[i] = -1;
        }
     }
 
-    public Node Find(Node n) {
-        if (setArr[n.getStateNumber()].getStateNumber() >= 0) {
-            setArr[n.getStateNumber()] = Find(setArr[n.getStateNumber()]);
-            return setArr[n.getStateNumber()];
+    public int Find(int k) {
+        if (setArr[k] >= 0) {
+            setArr[k] = Find(setArr[k]);
+            return setArr[k];
         }
         else {
-            return n;
+            return k;
         }
     }
 
-    private int getRank(Node n) {
-        return setArr[n.getStateNumber()].getStateNumber();
+    private int getRank(int k) {
+        return setArr[Find(k)];
     }
 
-    public void Union(Node a, Node b) {
-        Node x = Find(a);
-        Node y = Find(b);
+    public void Union(int a, int b) {
+        int x = Find(a);
+        int y = Find(b);
 
-        if (x.getStateNumber() == y.getStateNumber()) {
+        if (x == y) {
             return;
         }
 
         if (getRank(x) > getRank(y)) {
-            setArr[x.getStateNumber()] = y;
+            setArr[x] = y;
         }
         else if (getRank(x) < getRank(y)) {
-            setArr[y.getStateNumber()] = x;
+            setArr[y] = x;
         }
         else {
-            setArr[x.getStateNumber()] = y;
-            setArr[y.getStateNumber()].setStateNumber(Find(y).getStateNumber() - 1);
+            setArr[x] = y;
+            setArr[Find(y)] = setArr[Find(y)] - 1;
         }
     }
 
     public void printSets() {
         System.out.println(Arrays.toString(setArr));
+    }
+
+    public void printSetsVertically() {
+        for (int i = 0; i < setArr.length; i++) {
+            System.out.println("i: " + i + " arr[i]: " + setArr[i]);
+        }
     }
 
 }

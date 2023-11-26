@@ -4,7 +4,6 @@ import java.nio.file.NoSuchFileException;
 import java.util.*;
 import java.util.stream.Stream;
 
-
 public class IRoadTrip {
     DisjointSet disjointSet;
 
@@ -23,20 +22,51 @@ public class IRoadTrip {
                 List<Node> nodes = createNodeList(stateNameFile, arrSize);
                 this.disjointSet = createDisjointSet(borderFile, nodes);
             } catch (Exception e) {
-                System.err.println("Error in Main");
+                System.err.println(e.toString());
             }
     }
 
-    public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception{
-        DisjointSet result = new DisjointSet(nodes.size());
+    public Node findNode(List<Node> nodes, String countryName) {
+        for (Node node : nodes) {
+            if (node.getCountryName().contains(countryName)) {
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public int getBiggestStateNumber(List<Node> nodes) {
+        int maxStateNumber = 0;
+        for (Node node : nodes) {
+            maxStateNumber = Math.max(maxStateNumber, node.getStateNumber());
+        }
+        return maxStateNumber;
+    }
+    public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception {
+        DisjointSet result = new DisjointSet(getBiggestStateNumber(nodes) + 1);
         try {
             Scanner readBorders = new Scanner(borderFile);
             while (readBorders.hasNextLine()) {
                 String borderData = readBorders.nextLine();
                 int equalIndex = borderData.indexOf('=');
-                String countryName = borderData.substring(0, equalIndex-1);
+                String countryName = borderData.substring(0, equalIndex - 1).trim();
+                Node parent = findNode(nodes, countryName);
+                if (parent == null) { // Account for if the parent is not found inside the state_name file
+                    continue;
+                }
                 String[] segment = borderData.substring(equalIndex + 2).split(";");
-                // Finish this
+                for (String country : segment) {
+                    int spaceIndex = country.indexOf(" ");
+                    if (spaceIndex == -1) {
+                        continue;
+                    }
+                    String name = country.substring(0, spaceIndex);
+                    Node child = findNode(nodes, name);
+                    if (child == null) {
+                        continue;
+                    }
+                    result.Union(parent.getStateNumber(), child.getStateNumber());
+                }
             }
         }
         catch (FileNotFoundException e) {
@@ -48,19 +78,13 @@ public class IRoadTrip {
     List<Node> createNodeList (File stateNameFile, int size) throws Exception {
         List<Node> nodes = new ArrayList<>();
         try {
-            int check = -1;
             Scanner reader = new Scanner(stateNameFile);
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
                 String[] segment = data.split("\t");
-                if (!segment[4].equals(currentDate)) {
+                if (!segment[segment.length-1].equals(currentDate)) {
                     continue;
                 }
-                if (check == -1) { // Accounts for first line
-                    check++;
-                    continue;
-                }
-                nodes.add(new Node());
                 int stateNumber = Integer.parseInt(segment[0]);
                 String stateId = segment[1];
                 String countryName = "";
@@ -76,9 +100,12 @@ public class IRoadTrip {
                     }
                     index++;
                 }
-                nodes.get(nodes.size()-1).setStateNumber(stateNumber);
-                nodes.get(nodes.size()-1).setStateId(stateId);
-                nodes.get(nodes.size()-1).setCountryName(countryName);
+                Node newNode = new Node();
+                newNode.setStateNumber(stateNumber);
+                newNode.setStateId(stateId);
+                newNode.setCountryName(countryName);
+
+                nodes.add(newNode);
             }
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error Parsing File into Node List");
