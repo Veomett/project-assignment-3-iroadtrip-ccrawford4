@@ -143,7 +143,8 @@ public class IRoadTrip {
         Map<Node, Integer> map = new HashMap<>();
         int i = 0;
         for (Node n : nodes) {
-            if (n.getStateNumber() != parentOne) {
+            int nodeParent = disjointSet.Find(n.getStateNumber());
+            if (nodeParent != parentOne) {
                 continue;
             }
             map.put(n, i);
@@ -165,11 +166,13 @@ public class IRoadTrip {
                 if (map.containsKey(node)) {
                     int stateNumberTwo = Integer.parseInt(segment[2]);
                     Node childNode = findNodeFromNumber(stateNumberTwo);
+                    if (childNode == null) {
+                        continue;
+                    }
                     int distance = Integer.parseInt(segment[4]);
                     if (!map.containsKey(childNode)) {
                         continue;
                     }
-                    System.out.println("Test");
                     graph.addEdge(map.get(node), map.get(childNode), distance);
                 }
             }
@@ -177,7 +180,11 @@ public class IRoadTrip {
         } catch (FileNotFoundException e) {
             System.out.println("ERROR! Cap dist file not found.");
         }
-        graph.printGraph();
+
+        int vertexOne = map.get(nodeOne);
+        int vertexTwo = map.get(nodeTwo);
+
+        graph.findShortestPath(vertexOne, vertexTwo);
         return -1;
     }
 

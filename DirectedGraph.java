@@ -1,4 +1,4 @@
-import java.util.LinkedList;
+import java.util.*;
 
 public class DirectedGraph {
     private class Edge {
@@ -28,6 +28,11 @@ public class DirectedGraph {
     public void addEdge(int source, int destination, int weight) {
         Edge edge = new Edge(source, destination, weight);
         adjacencyList[source].addFirst(edge);
+    }
+
+    public int findShortestPath(int vertexOne, int vertexTwo) {
+        // work on this
+        return -1;
     }
 
     public void printGraph() {
