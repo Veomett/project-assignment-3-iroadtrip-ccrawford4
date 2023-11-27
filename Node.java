@@ -1,23 +1,11 @@
 public class Node {
-    private int stateNumber;
-    private String stateId;
-    private String countryName;
+    private final int stateNumber;
+    private final String stateId;
+    private final String countryName;
 
-    Node() {
-        this.stateNumber = -1;
-        this.stateId = "";
-        this.countryName = "";
-    }
-
-    void setStateNumber(int stateNumber) {
+    Node(int stateNumber, String stateId, String countryName) {
         this.stateNumber = stateNumber;
-    }
-
-    void setStateId(String stateId) {
         this.stateId = stateId;
-    }
-
-    void setCountryName(String countryName) {
         this.countryName = countryName;
     }
 

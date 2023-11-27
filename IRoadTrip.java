@@ -110,10 +110,7 @@ public class IRoadTrip {
                     }
                     index++;
                 }
-                Node newNode = new Node();
-                newNode.setStateNumber(stateNumber);
-                newNode.setStateId(stateId);
-                newNode.setCountryName(countryName);
+                Node newNode = new Node(stateNumber, stateId, countryName);
 
                 nodes.add(newNode);
             }
@@ -139,7 +136,7 @@ public class IRoadTrip {
         if (parentOne != parentTwo) {
             return -1; // The countries are not connected
         }
-        DirectedGraph graph = new DirectedGraph(nodes.size());
+        DirectedGraph graph = new DirectedGraph();
         Map<Node, Integer> map = new HashMap<>();
         int i = 0;
         for (Node n : nodes) {
@@ -173,7 +170,7 @@ public class IRoadTrip {
                     if (!map.containsKey(childNode)) {
                         continue;
                     }
-                    graph.addEdge(map.get(node), map.get(childNode), distance);
+                    //graph.addEdge(map.get(node), map.get(childNode), distance);
                 }
             }
 
@@ -184,7 +181,7 @@ public class IRoadTrip {
         int vertexOne = map.get(nodeOne);
         int vertexTwo = map.get(nodeTwo);
 
-        graph.findShortestPath(vertexOne, vertexTwo);
+        //graph.findShortestPath(vertexOne, vertexTwo);
         return -1;
     }
 
