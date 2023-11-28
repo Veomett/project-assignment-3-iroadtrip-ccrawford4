@@ -5,24 +5,57 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class IRoadTrip {
-    DisjointSet disjointSet;
     private final String currentDate = "2020-12-31";
     List<Node> nodes;
-    File capDistFile;
+    Map<Node, List<Node>> neighbors;
+    Graph graph;
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
         }
         File borderFile = new File(args[0]);
-        this.capDistFile = new File(args[1]);
+        File capDistFile = new File(args[1]);
         File stateNameFile = new File(args[2]);
-
         try {
             this.nodes = createNodeList(stateNameFile);
-            this.disjointSet = createDisjointSet(borderFile, nodes);
+            this.neighbors = createNeighborsMap(borderFile);
+            this.graph = createGraph(nodes, capDistFile);
         } catch (Exception e) {
             System.err.println(e.toString());
         }
+    }
+
+    public Map<Node, List<Node>> createNeighborsMap(File borderFile) {
+        Map<Node, List<Node>> result = new HashMap<>();
+        try {
+            Scanner reader = new Scanner(borderFile);
+            while (reader.hasNextLine()) {
+                String data = reader.nextLine();
+                int equalIndex = data.indexOf('=');
+                String parentName = data.substring(0, equalIndex - 1);
+                Node parentNode = findNodeFromName(parentName);
+                if (parentNode != null) {
+                    String[] countries = data.substring(equalIndex + 1).split(";");
+                    if (countries.length > 1) {
+                        List<Node> neighbors = new ArrayList<>();
+                        for (String country : countries) {
+                            String[] parts = country.split(" ");
+                            String neighborName = parts[1];
+                            Node neighborNode = findNodeFromName(neighborName);
+                            if (neighborNode != null) {
+                                neighbors.add(neighborNode);
+                            }
+
+                        }
+                        result.put(parentNode, neighbors);
+                    }
+                }
+            }
+        }
+        catch (FileNotFoundException e) {
+            System.out.println("ERROR FILE NOT FOUND");
+        }
+        return result;
     }
 
     public Node findNodeFromName(String countryName) {
@@ -41,46 +74,6 @@ public class IRoadTrip {
             }
         }
         return null;
-    }
-
-    public int getBiggestStateNumber(List<Node> nodes) {
-        int maxStateNumber = 0;
-        for (Node node : nodes) {
-            maxStateNumber = Math.max(maxStateNumber, node.getStateNumber());
-        }
-        return maxStateNumber;
-    }
-
-    public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception {
-        DisjointSet result = new DisjointSet(getBiggestStateNumber(nodes) + 1);
-        try {
-            Scanner readBorders = new Scanner(borderFile);
-            while (readBorders.hasNextLine()) {
-                String borderData = readBorders.nextLine();
-                int equalIndex = borderData.indexOf('=');
-                String countryName = borderData.substring(0, equalIndex - 1).trim();
-                Node parent = findNodeFromName(countryName);
-                if (parent == null) { // Account for if the parent is not found inside the state_name file
-                    continue;
-                }
-                String[] segment = borderData.substring(equalIndex + 2).split(";");
-                for (String country : segment) {
-                    country = country.trim();
-                    String[] names = country.split(" ");
-                    String name = names[0];
-                    Node child = findNodeFromName(name);
-                    if (child == null) {
-                        continue;
-                    }
-                    result.Union(parent.getStateNumber(), child.getStateNumber());
-
-                }
-            }
-        }
-        catch (FileNotFoundException e) {
-            throw new FileNotFoundException("Error Parsing File into Disjoint Set");
-        }
-        return result;
     }
 
     List<Node> createNodeList (File stateNameFile) throws Exception {
@@ -129,24 +122,17 @@ public class IRoadTrip {
             System.out.println("ERROR! " + country2 + " is not found.");
             return -1;
         }
-        int parentOne = disjointSet.Find(source.getStateNumber());
-        int parentTwo = disjointSet.Find(destination.getStateNumber());
-        if (parentOne != parentTwo) {
-            return -1; // The countries are not connected
-        }
-        List<Node> subList = findLocalNodes(parentOne);
-        Graph graph = createGraph(subList);
-        Map<Node, Integer> shortestDistances = runDijkstra(graph, source);
-        int shortestDistance = shortestDistances.get(destination);
 
-        if (shortestDistance == Integer.MAX_VALUE) {
-            return -1;
+        Map<Node, Integer> distances = runDijkstra(source);
+        int distance = distances.get(destination);
+        if (distance != Integer.MAX_VALUE) {
+            return distance;
         }
-        return shortestDistance;
+        return -1;
     }
 
 
-    public Map<Node, Integer> runDijkstra(Graph graph, Node source) {
+    public Map<Node, Integer> runDijkstra(Node source) {
         Map<Node, Integer> shortestDistances = new HashMap<>();
         PriorityQueue<Edge> minHeap = new PriorityQueue<>(Comparator.comparingInt(edge -> edge.weight));
 
@@ -169,7 +155,9 @@ public class IRoadTrip {
             for (Edge edge : graph.getNeighbors(currentNode)) {
                 int newDistance = currentDistance + edge.weight;
                 if (newDistance < shortestDistances.get(edge.destination)) {
+                    minHeap.removeIf(e -> e.destination.equals(edge.destination));
                     minHeap.offer(new Edge(edge.destination, newDistance));
+                    shortestDistances.put(edge.destination, newDistance);
                 }
             }
         }
@@ -177,24 +165,13 @@ public class IRoadTrip {
     }
 
 
-    List<Node> findLocalNodes(int parent) {
-        List<Node> result = new ArrayList<>();
-        for (Node n : nodes) {
-            if (disjointSet.Find(n.getStateNumber()) == parent) {
-                result.add(n);
-            }
-        }
-        return result;
-    }
-
     boolean validPair(Collection<Node> subList, Node nodeA, Node nodeB) {
         return (nodeA != null && subList.contains(nodeA)) && (nodeB != null && subList.contains(nodeB));
     }
-    void addEdges(Graph graph) {
+    void addEdges(Graph graph, File capDistFile) {
         try {
             Scanner reader = new Scanner(capDistFile);
             int count = 0;
-            Collection<Node> subList = graph.getNodes();
             while (reader.hasNextLine()) {
                 if (count == 0) {
                     reader.nextLine();
@@ -204,25 +181,26 @@ public class IRoadTrip {
                 String data = reader.nextLine();
                 String[] segment = data.split(",");
                 int stateNumber = Integer.parseInt(segment[0]);
-                Node node = findNodeFromNumber(stateNumber);
+                Node source = findNodeFromNumber(stateNumber);
                 int stateNumberTwo = Integer.parseInt(segment[2]);
-                Node childNode = findNodeFromNumber(stateNumberTwo);
+                Node destination = findNodeFromNumber(stateNumberTwo);
                 int distance = Integer.parseInt(segment[4]);
-                if (validPair(subList, node, childNode)) {
-                    graph.addEdge(node, childNode, distance);
+                if (neighbors.get(source) != null && neighbors.get(source).contains(destination)) {
+                        graph.addEdge(source, destination, distance);
+                    }
                 }
-            }
+
 
         } catch (FileNotFoundException e) {
             System.out.println("ERROR! Capital-Distance File Not Found.");
         }
     }
-    Graph createGraph(List<Node> subList) {
+    Graph createGraph(List<Node> subList, File capDistFile) {
         Graph graph = new Graph();
         for (Node n : subList) {
             graph.addNode(n);
         }
-        addEdges(graph);
+        addEdges(graph, capDistFile);
         return graph;
     }
 
@@ -240,7 +218,7 @@ public class IRoadTrip {
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-        System.out.println(a3.getDistance("America", "Canada"));
+       System.out.println(a3.getDistance("America", "Canada"));
         a3.acceptUserInput();
     }
 }
