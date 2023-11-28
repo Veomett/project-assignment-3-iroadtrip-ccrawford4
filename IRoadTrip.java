@@ -121,7 +121,7 @@ public class IRoadTrip {
             return -1;
         }
 
-        Map<Node, Integer> distances = runDijkstra(source);
+        Map<Node, Integer> distances = graph.runDijkstra(source);
         int distance = distances.get(destination);
         if (distance != Integer.MAX_VALUE) {
             return distance;
@@ -129,38 +129,6 @@ public class IRoadTrip {
         return -1;
     }
 
-
-    public Map<Node, Integer> runDijkstra(Node source) {
-        Map<Node, Integer> shortestDistances = new HashMap<>();
-        PriorityQueue<Edge> minHeap = new PriorityQueue<>(Comparator.comparingInt(edge -> edge.weight));
-
-        for (Node node : graph.getNodes()) {
-            shortestDistances.put(node, Integer.MAX_VALUE);
-        }
-        shortestDistances.put(source, 0);
-
-        minHeap.offer(new Edge(source, 0));
-
-        while (!minHeap.isEmpty()) {
-            Edge currentEdge = minHeap.poll();
-            Node currentNode = currentEdge.destination;
-            int currentDistance = currentEdge.weight;
-
-            if (currentDistance > shortestDistances.get(currentNode)) {
-                continue;
-            }
-
-            for (Edge edge : graph.getNeighbors(currentNode)) {
-                int newDistance = currentDistance + edge.weight;
-                if (newDistance < shortestDistances.get(edge.destination)) {
-                    minHeap.removeIf(e -> e.destination.equals(edge.destination));
-                    minHeap.offer(new Edge(edge.destination, newDistance));
-                    shortestDistances.put(edge.destination, newDistance);
-                }
-            }
-        }
-        return shortestDistances;
-    }
 
 
     boolean validPair(Collection<Node> subList, Node nodeA, Node nodeB) {
@@ -213,6 +181,9 @@ public class IRoadTrip {
             System.out.print("Enter the name of the first country (type EXIT to quit): ");
             String name = scanner.nextLine();
             Node source = findNodeFromName(name);
+            if (name.equals("EXIT")) {
+                break;
+            }
             if (source == null) {
                 System.out.println("Invalid country name. Please enter a valid country name.");
                 continue;
@@ -220,32 +191,25 @@ public class IRoadTrip {
             System.out.println("Enter the name of the second country (type EXIT to quit): ");
             String nameTwo = scanner.nextLine();
             Node destination = findNodeFromName(nameTwo);
+            if (nameTwo.equals("EXIT")) {
+                break;
+            }
             if (destination == null) {
                 System.out.println("Invalid country name. Please enter a valid country name.");
                 continue;
             }
             System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
-            Map<Node, Integer> search = runDijkstra(source);
-            printShortestPath(search, source, destination);
+            Map<Node, Integer> search = graph.runDijkstra(source);
+            graph.printShortestPath(search, source, destination);
         }
     }
 
-    public void printShortestPath(Map<Node, Integer> shortestDistances, Node source, Node destination) {
-        List<Node> path = new ArrayList<>();
-        Node current = destination;
-
-        while (current != null && current != source) {
-            path.add(current);
-            // stop here
-            break;
-        }
-    }
 
 
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-       // System.out.println(a3.getDistance("Czech Republic", "Switzerland"));
+       // System.out.println(a3.getDistance("Czech Republic", "Russia"));
         a3.acceptUserInput();
     }
 }
