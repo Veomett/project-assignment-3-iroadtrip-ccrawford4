@@ -1,4 +1,7 @@
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
 public class DisjointSet {
     public int n;
     private int[] setArr;

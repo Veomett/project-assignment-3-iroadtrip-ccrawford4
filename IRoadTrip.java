@@ -17,9 +17,8 @@ public class IRoadTrip {
         this.capDistFile = new File(args[1]);
         File stateNameFile = new File(args[2]);
 
-        int arrSize =  (int) borderFile.length();
         try {
-            this.nodes = createNodeList(stateNameFile, arrSize);
+            this.nodes = createNodeList(stateNameFile);
             this.disjointSet = createDisjointSet(borderFile, nodes);
         } catch (Exception e) {
             System.err.println(e.toString());
@@ -51,7 +50,7 @@ public class IRoadTrip {
         }
         return maxStateNumber;
     }
-    
+
     public DisjointSet createDisjointSet(File borderFile, List<Node> nodes) throws Exception {
         DisjointSet result = new DisjointSet(getBiggestStateNumber(nodes) + 1);
         try {
@@ -66,16 +65,15 @@ public class IRoadTrip {
                 }
                 String[] segment = borderData.substring(equalIndex + 2).split(";");
                 for (String country : segment) {
-                    int spaceIndex = country.indexOf(" ");
-                    if (spaceIndex == -1) {
-                        continue;
-                    }
-                    String name = country.substring(0, spaceIndex);
+                    country = country.trim();
+                    String[] names = country.split(" ");
+                    String name = names[0];
                     Node child = findNodeFromName(name);
                     if (child == null) {
                         continue;
                     }
                     result.Union(parent.getStateNumber(), child.getStateNumber());
+
                 }
             }
         }
@@ -85,7 +83,7 @@ public class IRoadTrip {
         return result;
     }
 
-    List<Node> createNodeList (File stateNameFile, int size) throws Exception {
+    List<Node> createNodeList (File stateNameFile) throws Exception {
         List<Node> nodes = new ArrayList<>();
         try {
             Scanner reader = new Scanner(stateNameFile);
@@ -121,68 +119,111 @@ public class IRoadTrip {
     }
 
     public int getDistance (String country1, String country2) {
-        Node nodeOne = findNodeFromName(country1);
-        Node nodeTwo = findNodeFromName(country2);
-        if (nodeOne == null) {
+        Node source = findNodeFromName(country1);
+        Node destination = findNodeFromName(country2);
+        if (source == null) {
             System.out.println("ERROR! " + country1 + " is not found.");
             return -1;
         }
-        if (nodeTwo == null) {
+        if (destination == null) {
             System.out.println("ERROR! " + country2 + " is not found.");
             return -1;
         }
-        int parentOne = disjointSet.Find(nodeOne.getStateNumber());
-        int parentTwo = disjointSet.Find(nodeTwo.getStateNumber());
+        int parentOne = disjointSet.Find(source.getStateNumber());
+        int parentTwo = disjointSet.Find(destination.getStateNumber());
         if (parentOne != parentTwo) {
             return -1; // The countries are not connected
         }
-        DirectedGraph graph = new DirectedGraph();
-        Map<Node, Integer> map = new HashMap<>();
-        int i = 0;
-        for (Node n : nodes) {
-            int nodeParent = disjointSet.Find(n.getStateNumber());
-            if (nodeParent != parentOne) {
+        List<Node> subList = findLocalNodes(parentOne);
+        Graph graph = createGraph(subList);
+        Map<Node, Integer> shortestDistances = runDijkstra(graph, source);
+        int shortestDistance = shortestDistances.get(destination);
+
+        if (shortestDistance == Integer.MAX_VALUE) {
+            return -1;
+        }
+        return shortestDistance;
+    }
+
+
+    public Map<Node, Integer> runDijkstra(Graph graph, Node source) {
+        Map<Node, Integer> shortestDistances = new HashMap<>();
+        PriorityQueue<Edge> minHeap = new PriorityQueue<>(Comparator.comparingInt(edge -> edge.weight));
+
+        for (Node node : graph.getNodes()) {
+            shortestDistances.put(node, Integer.MAX_VALUE);
+        }
+        shortestDistances.put(source, 0);
+
+        minHeap.offer(new Edge(source, 0));
+
+        while (!minHeap.isEmpty()) {
+            Edge currentEdge = minHeap.poll();
+            Node currentNode = currentEdge.destination;
+            int currentDistance = currentEdge.weight;
+
+            if (currentDistance > shortestDistances.get(currentNode)) {
                 continue;
             }
-            map.put(n, i);
-            i++;
-        }
 
-        try {
-            Scanner readable = new Scanner(capDistFile);
-            int count = 0;
-            while (readable.hasNextLine()) {
-                if (count == 0) {
-                    readable.nextLine();
-                    count++;
+            for (Edge edge : graph.getNeighbors(currentNode)) {
+                int newDistance = currentDistance + edge.weight;
+                if (newDistance < shortestDistances.get(edge.destination)) {
+                    minHeap.offer(new Edge(edge.destination, newDistance));
                 }
-                String data = readable.nextLine();
+            }
+        }
+        return shortestDistances;
+    }
+
+
+    List<Node> findLocalNodes(int parent) {
+        List<Node> result = new ArrayList<>();
+        for (Node n : nodes) {
+            if (disjointSet.Find(n.getStateNumber()) == parent) {
+                result.add(n);
+            }
+        }
+        return result;
+    }
+
+    boolean validPair(Collection<Node> subList, Node nodeA, Node nodeB) {
+        return (nodeA != null && subList.contains(nodeA)) && (nodeB != null && subList.contains(nodeB));
+    }
+    void addEdges(Graph graph) {
+        try {
+            Scanner reader = new Scanner(capDistFile);
+            int count = 0;
+            Collection<Node> subList = graph.getNodes();
+            while (reader.hasNextLine()) {
+                if (count == 0) {
+                    reader.nextLine();
+                    count++;
+                    continue;
+                }
+                String data = reader.nextLine();
                 String[] segment = data.split(",");
                 int stateNumber = Integer.parseInt(segment[0]);
                 Node node = findNodeFromNumber(stateNumber);
-                if (map.containsKey(node)) {
-                    int stateNumberTwo = Integer.parseInt(segment[2]);
-                    Node childNode = findNodeFromNumber(stateNumberTwo);
-                    if (childNode == null) {
-                        continue;
-                    }
-                    int distance = Integer.parseInt(segment[4]);
-                    if (!map.containsKey(childNode)) {
-                        continue;
-                    }
-                    //graph.addEdge(map.get(node), map.get(childNode), distance);
+                int stateNumberTwo = Integer.parseInt(segment[2]);
+                Node childNode = findNodeFromNumber(stateNumberTwo);
+                int distance = Integer.parseInt(segment[4]);
+                if (validPair(subList, node, childNode)) {
+                    graph.addEdge(node, childNode, distance);
                 }
             }
 
         } catch (FileNotFoundException e) {
-            System.out.println("ERROR! Cap dist file not found.");
+            System.out.println("ERROR! Capital-Distance File Not Found.");
         }
-
-        int vertexOne = map.get(nodeOne);
-        int vertexTwo = map.get(nodeTwo);
-
-        //graph.findShortestPath(vertexOne, vertexTwo);
-        return -1;
+    }
+    Graph createGraph(List<Node> subList) {
+        Graph graph = new Graph();
+        for (Node n : subList) {
+            graph.addNode(n);
+        }
+        addEdges(graph);
+        return graph;
     }
 
     public List<String> findPath (String country1, String country2) {
