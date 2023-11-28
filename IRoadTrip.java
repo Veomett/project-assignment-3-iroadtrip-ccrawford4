@@ -115,11 +115,9 @@ public class IRoadTrip {
         Node source = findNodeFromName(country1);
         Node destination = findNodeFromName(country2);
         if (source == null) {
-            System.out.println("ERROR! " + country1 + " is not found.");
             return -1;
         }
         if (destination == null) {
-            System.out.println("ERROR! " + country2 + " is not found.");
             return -1;
         }
 
@@ -210,15 +208,44 @@ public class IRoadTrip {
     }
 
     public void acceptUserInput() {
-        // Replace with your code
-        System.out.println("IRoadTrip - skeleton");
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.print("Enter the name of the first country (type EXIT to quit): ");
+            String name = scanner.nextLine();
+            Node source = findNodeFromName(name);
+            if (source == null) {
+                System.out.println("Invalid country name. Please enter a valid country name.");
+                continue;
+            }
+            System.out.println("Enter the name of the second country (type EXIT to quit): ");
+            String nameTwo = scanner.nextLine();
+            Node destination = findNodeFromName(nameTwo);
+            if (destination == null) {
+                System.out.println("Invalid country name. Please enter a valid country name.");
+                continue;
+            }
+            System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
+            Map<Node, Integer> search = runDijkstra(source);
+            printShortestPath(search, source, destination);
+        }
+    }
+
+    public void printShortestPath(Map<Node, Integer> shortestDistances, Node source, Node destination) {
+        List<Node> path = new ArrayList<>();
+        Node current = destination;
+
+        while (current != null && current != source) {
+            path.add(current);
+            // stop here
+            break;
+        }
     }
 
 
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-       System.out.println(a3.getDistance("America", "Canada"));
+       // System.out.println(a3.getDistance("Czech Republic", "Switzerland"));
         a3.acceptUserInput();
     }
 }
