@@ -199,8 +199,7 @@ public class IRoadTrip {
                 continue;
             }
             System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
-            Map<Node, Integer> search = graph.runDijkstra(source);
-            graph.printShortestPath(search, source, destination);
+            graph.printShortestPath(source, destination);
         }
     }
 

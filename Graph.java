@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Graph {
-    private Map<Node, List<Edge>> adjacencyList;
+    private final Map<Node, List<Edge>> adjacencyList;
     private Map<Node, Node> predecessors;
     Graph() {
         this.adjacencyList = new HashMap<>();
@@ -18,8 +18,9 @@ public class Graph {
         adjacencyList.get(destination).add(edge);
     }
 
-    public void printShortestPath(Map<Node, Integer> shortestDistances, Node source, Node destination) {
+    public void printShortestPath(Node source, Node destination) {
         List<Node> path = new ArrayList<>();
+        Map<Node, Integer> shortestDistances = runDijkstra(source);
         Node current = destination;
 
         while (current != null && current != source) {
@@ -32,7 +33,12 @@ public class Graph {
         else {
             path.add(source);
             Collections.reverse(path);
-            System.out.println(path);
+            for (int i = 0; i < path.size() - 1; i++) {
+                String countryOne = path.get(i).getCountryName();
+                String countryTwo = path.get(i + 1).getCountryName();
+                System.out.println("* " + countryOne + " --> " + countryTwo + " " + shortestDistances.get(destination) + "km");
+            }
+
         }
     }
 
