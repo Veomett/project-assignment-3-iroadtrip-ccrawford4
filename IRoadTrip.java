@@ -5,7 +5,6 @@ import java.util.*;
 import java.util.stream.Stream;
 
 public class IRoadTrip {
-    private final String currentDate = "2020-12-31";
     List<Node> nodes;
     Map<Node, List<Node>> neighbors;
     Graph graph;
@@ -13,9 +12,10 @@ public class IRoadTrip {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
         }
-        File borderFile = new File(args[0]);
-        File capDistFile = new File(args[1]);
-        File stateNameFile = new File(args[2]);
+        String basePath = "./Resources/";
+        File borderFile = new File(basePath + args[0]);
+        File capDistFile = new File(basePath + args[1]);
+        File stateNameFile = new File(basePath + args[2]);
         try {
             this.nodes = createNodeList(stateNameFile);
             this.neighbors = createNeighborsMap(borderFile);
@@ -83,6 +83,7 @@ public class IRoadTrip {
             while (reader.hasNextLine()) {
                 String data = reader.nextLine();
                 String[] segment = data.split("\t");
+                String currentDate = "2020-12-31";
                 if (!segment[segment.length-1].equals(currentDate)) {
                     continue;
                 }
@@ -159,8 +160,15 @@ public class IRoadTrip {
     }
 
     public List<String> findPath (String country1, String country2) {
-
-        return null;
+        Node source = findNodeFromName(country1);
+        Node destination = findNodeFromName(country2);
+        if (source == null) {
+            return new ArrayList<>();
+        }
+        if (destination == null) {
+            return new ArrayList<>();
+        }
+        return graph.findPath(source, destination);
     }
 
     public void acceptUserInput() {

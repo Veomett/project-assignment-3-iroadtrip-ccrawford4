@@ -2,7 +2,6 @@ import java.util.*;
 
 public class Graph {
     private final Map<Node, List<Edge>> adjacencyList;
-    private Map<Node, Node> predecessors;
     Graph() {
         this.adjacencyList = new HashMap<>();
     }
@@ -19,9 +18,10 @@ public class Graph {
     }
 
     List<String> findPath(Node source, Node destination) {
+        Map<Node, Node> predecessors = runDijkstra(source);
         List<String> stringPath = new ArrayList<>();
         List<Node> nodePath = new ArrayList<>();
-        Map<Node, Integer> shortestDistances = runDijkstra(source);
+        runDijkstra(source);
         Node current = destination;
 
         while (current != null && current != source) {
@@ -52,6 +52,7 @@ public class Graph {
     }
 
     public void printShortestPath(Node source, Node destination) {
+        Map<Node, Node> predecessors = runDijkstra(source);
         List<Node> path = new ArrayList<>();
         runDijkstra(source);
         Node current = destination;
@@ -67,7 +68,7 @@ public class Graph {
             String countryOne = path.get(i).getCountryName();
             String countryTwo = path.get(i + 1).getCountryName();
             int weight = findEdgeWeight(path.get(i), path.get(i+1));
-            System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
+            System.out.println("* " + countryOne + "--> " + countryTwo + " (" + weight + " km.)");
         }
     }
 
@@ -80,7 +81,7 @@ public class Graph {
         return -1;
     }
 
-    public Map<Node, Integer> runDijkstra(Node source) {
+    public Map<Node, Node> runDijkstra(Node source) {
         Map<Node, Integer> shortestDistances = new HashMap<>();
         Map<Node, Node> predecessors = new HashMap<>();
         PriorityQueue<Edge> minHeap = new PriorityQueue<>(Comparator.comparingInt(edge -> edge.weight));
@@ -111,8 +112,7 @@ public class Graph {
                 }
             }
         }
-        this.predecessors = predecessors;
-        return shortestDistances;
+        return predecessors;
     }
 
     public Collection<Node> getNodes() {
