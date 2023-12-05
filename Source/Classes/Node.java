@@ -1,3 +1,4 @@
+package Source.Classes;
 public class Node {
     private final int stateNumber;
     private final String stateId;
@@ -7,15 +8,15 @@ public class Node {
         this.stateId = stateId;
         this.countryName = countryName;
     }
-    int getStateNumber() {
+    public int getStateNumber() {
         return stateNumber;
     }
 
-    String getStateId() {
+    public String getStateId() {
         return stateId;
     }
 
-    String getCountryName() {
+    public String getCountryName() {
         return countryName;
     }
 }

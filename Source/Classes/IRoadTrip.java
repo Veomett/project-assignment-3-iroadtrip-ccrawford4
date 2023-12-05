@@ -1,9 +1,7 @@
+package Source.Classes;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.nio.file.NoSuchFileException;
 import java.util.*;
-import java.util.stream.Stream;
-
 public class IRoadTrip {
     List<Node> nodes;
     Map<Node, List<Node>> neighbors;
@@ -198,9 +196,6 @@ public class IRoadTrip {
             graph.printShortestPath(source, destination);
         }
     }
-
-
-
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);

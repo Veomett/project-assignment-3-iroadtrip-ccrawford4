@@ -1,3 +1,4 @@
+package Source.Classes;
 public class Edge {
         Node destination;
         int weight;
