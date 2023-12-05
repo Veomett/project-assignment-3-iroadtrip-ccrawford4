@@ -120,20 +120,9 @@ public class IRoadTrip {
         if (destination == null) {
             return -1;
         }
-
-        Map<Node, Integer> distances = graph.runDijkstra(source);
-        int distance = distances.get(destination);
-        if (distance != Integer.MAX_VALUE) {
-            return distance;
-        }
-        return -1;
+        return graph.getDistance(source, destination);
     }
 
-
-
-    boolean validPair(Collection<Node> subList, Node nodeA, Node nodeB) {
-        return (nodeA != null && subList.contains(nodeA)) && (nodeB != null && subList.contains(nodeB));
-    }
     void addEdges(Graph graph, File capDistFile) {
         try {
             Scanner reader = new Scanner(capDistFile);
@@ -156,7 +145,6 @@ public class IRoadTrip {
                     }
                 }
 
-
         } catch (FileNotFoundException e) {
             System.out.println("ERROR! Capital-Distance File Not Found.");
         }
@@ -171,7 +159,7 @@ public class IRoadTrip {
     }
 
     public List<String> findPath (String country1, String country2) {
-        // Replace with your code
+
         return null;
     }
 
@@ -188,7 +176,7 @@ public class IRoadTrip {
                 System.out.println("Invalid country name. Please enter a valid country name.");
                 continue;
             }
-            System.out.println("Enter the name of the second country (type EXIT to quit): ");
+            System.out.print("Enter the name of the second country (type EXIT to quit): ");
             String nameTwo = scanner.nextLine();
             Node destination = findNodeFromName(nameTwo);
             if (nameTwo.equals("EXIT")) {

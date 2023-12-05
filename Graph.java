@@ -18,28 +18,66 @@ public class Graph {
         adjacencyList.get(destination).add(edge);
     }
 
+    List<String> findPath(Node source, Node destination) {
+        List<String> stringPath = new ArrayList<>();
+        List<Node> nodePath = new ArrayList<>();
+        Map<Node, Integer> shortestDistances = runDijkstra(source);
+        Node current = destination;
+
+        while (current != null && current != source) {
+            current = predecessors.get(current);
+        }
+        if (current == null) {
+            return stringPath;
+        }
+        nodePath.add(source);
+        Collections.reverse(nodePath);
+        for (int i = 0; i < nodePath.size() - 1; i+=2) {
+            String countryOne = nodePath.get(i).getCountryName();
+            String countryTwo = nodePath.get(i+1).getCountryName();
+            stringPath.add(countryOne);
+            stringPath.add(countryTwo);
+        }
+        return stringPath;
+    }
+
+    public int getDistance(Node source, Node destination) {
+        List<Edge> edges = adjacencyList.get(source);
+        for (Edge edge : edges) {
+            if (edge.destination == destination) {
+                return edge.weight;
+            }
+        }
+        return -1;
+    }
+
     public void printShortestPath(Node source, Node destination) {
         List<Node> path = new ArrayList<>();
-        Map<Node, Integer> shortestDistances = runDijkstra(source);
+        runDijkstra(source);
         Node current = destination;
 
         while (current != null && current != source) {
             path.add(current);
             current = predecessors.get(current);
         }
-        if (current == null) {
-            System.out.println("No path from " + source.getCountryName() + " to " + destination.getCountryName());
-        }
-        else {
-            path.add(source);
-            Collections.reverse(path);
-            for (int i = 0; i < path.size() - 1; i++) {
-                String countryOne = path.get(i).getCountryName();
-                String countryTwo = path.get(i + 1).getCountryName();
-                System.out.println("* " + countryOne + " --> " + countryTwo + " " + shortestDistances.get(destination) + "km");
-            }
 
+        path.add(source);
+        Collections.reverse(path);
+        for (int i = 0; i < path.size() - 1; i++) {
+            String countryOne = path.get(i).getCountryName();
+            String countryTwo = path.get(i + 1).getCountryName();
+            int weight = findEdgeWeight(path.get(i), path.get(i+1));
+            System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
         }
+    }
+
+    int findEdgeWeight(Node source, Node destination) {
+        for (Edge edge : adjacencyList.get(source)) {
+            if (edge.destination == destination) {
+                return edge.weight;
+            }
+        }
+        return -1;
     }
 
     public Map<Node, Integer> runDijkstra(Node source) {
