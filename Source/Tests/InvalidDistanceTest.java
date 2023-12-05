@@ -64,4 +64,42 @@ public class InvalidDistanceTest {
         int expectedDistance = -1;
         Assert.assertEquals(distance, expectedDistance);
     }
+    @Test
+    public void invalidTestEleven() {
+        int distance = roadTrip.getDistance("Yemen", "Jordan");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+    @Test
+    public void invalidTestTwelve() {
+        int distance = roadTrip.getDistance("Paraguay", "Peru");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+    @Test
+    public void invalidTestThirteen() {
+        int distance = roadTrip.getDistance("Gabon", "Nigeria");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+    @Test
+    public void invalidTestFourteen() {
+        int distance = roadTrip.getDistance("Nigeria", "Algeria");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+    @Test
+    public void invalidTestFifteen() {
+        int distance = roadTrip.getDistance("Niger", "Morocco");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+    @Test
+    public void invalidTestSixteen() {
+        int distance = roadTrip.getDistance("Morocco", "France");
+        int expectedDistance = -1;
+        Assert.assertEquals(distance, expectedDistance);
+    }
+
+
 }
