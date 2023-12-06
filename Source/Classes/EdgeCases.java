@@ -30,7 +30,7 @@ public class EdgeCases {
         aliases.put("bosnia", "Bosnia-Herzegovina");
         aliases.put("romania", "rumania");
         aliases.put("russia", "Russia (Soviet Union)");
-        aliases.put("Soviet Union", "Russia (Soviet Union");
+        aliases.put("soviet union", "Russia (Soviet Union)");
         aliases.put("Russia (Kaliningrad Oblast)", "Russia (Soviet Union)");
         aliases.put("Lithuania (Kaliningrad Oblast)", "Lithuania");
         aliases.put("belarus", "Belarus (Byelorussia)");

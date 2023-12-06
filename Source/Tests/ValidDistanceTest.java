@@ -1,9 +1,7 @@
 package Source.Tests;
-
 import Source.Classes.IRoadTrip;
 import org.junit.*;
 
-// *ADD CASES FOR WHEN THE COUNTRIES ARE THE SAME --> SHOULD RETURN 0
 public class ValidDistanceTest {
     private final String[] args = {"borders.txt", "capdist.csv", "state_name.tsv"};
     private final IRoadTrip roadTrip = new IRoadTrip(args);

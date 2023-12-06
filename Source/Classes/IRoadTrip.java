@@ -3,8 +3,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 public class IRoadTrip {
-    List<Node> nodes;
-    Graph graph;
+    private List<Node> nodes;
+    private Map<String, Node> nameMap;
+    private Map<String, Node> idMap;
+    private Map<Integer, Node> numberMap;
+    private Graph graph;
+    private EdgeCases edgeCases;
+
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
             System.err.println("ERROR! Not enough command line arguments.");
@@ -14,6 +19,10 @@ public class IRoadTrip {
         File capDistFile = new File(basePath + args[1]);
         File stateNameFile = new File(basePath + args[2]);
         try {
+            this.edgeCases = new EdgeCases();
+            this.nameMap = new HashMap<>();
+            this.numberMap = new HashMap<>();
+            this.idMap = new HashMap<>();
             this.nodes = createNodeList(stateNameFile);
             addNeighbors(borderFile);
             this.graph = createGraph(nodes, capDistFile);
@@ -102,7 +111,7 @@ public class IRoadTrip {
     }
 
     public Node findNodeFromName(String countryName) {
-        for (Node node : nodes) {
+        /*for (Node node : nodes) {
             if (node.getCountryName().toLowerCase().contains(countryName.toLowerCase())) {
                 return node;
             }
@@ -110,14 +119,30 @@ public class IRoadTrip {
                 return node;
             }
         }
+        return null;*/
+        if (edgeCases.containsKey(countryName.toLowerCase())) {
+            countryName = edgeCases.getFormal(countryName.toLowerCase());
+        }
+        else if (idMap.containsKey(countryName.toUpperCase())) {
+            Node n = idMap.get(countryName.toUpperCase());
+            countryName = n.getCountryName();
+        }
+        if (nameMap.containsKey(countryName)) {
+            return nameMap.get(countryName);
+        }
         return null;
+
     }
 
     public Node findNodeFromNumber(int stateNumber) {
-        for (Node node : nodes) {
+       /* for (Node node : nodes) {
             if (node.getStateNumber() == stateNumber) {
                 return node;
             }
+        }
+        return null;*/
+        if (numberMap.containsKey(stateNumber)) {
+            return numberMap.get(stateNumber);
         }
         return null;
     }
@@ -153,6 +178,9 @@ public class IRoadTrip {
                     countryName = updatedSegment[1].trim() + " " + updatedSegment[0].trim();
                 }
                 Node newNode = new Node(stateNumber, stateId, countryName);
+                nameMap.put(countryName, newNode);
+                numberMap.put(stateNumber, newNode);
+                idMap.put(stateId, newNode);
                 nodes.add(newNode);
             }
         } catch (FileNotFoundException e) {
@@ -165,11 +193,9 @@ public class IRoadTrip {
         Node source = findNodeFromName(country1);
         Node destination = findNodeFromName(country2);
         if (source == null) {
-            System.out.println("source is null");
             return -1;
         }
         if (destination == null) {
-            System.out.println("destination is null");
             return -1;
         }
         if (source == destination) {
@@ -199,15 +225,6 @@ public class IRoadTrip {
                 int stateNumberTwo = Integer.parseInt(segment[2]);
                 Node destination = findNodeFromNumber(stateNumberTwo);
                 int distance = Integer.parseInt(segment[4]);
-
-                if (source != null && destination != null) {
-                   // System.out.println("Node: " + source.getCountryName());
-                    if (source.getCountryName().equals("South Sudan")) {
-                      /*  System.out.println("Source: " + source.getCountryName());
-                        System.out.println("Destination: ");
-                        System.out.println("Distance: " + distance);*/
-                    }
-                }
                 if (isValidPair(source, destination)) {
                     graph.addEdge(source, destination, distance);
                 }
@@ -277,12 +294,7 @@ public class IRoadTrip {
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-       // System.out.println(a3.getDistance("Czech Republic", "Russia"));
-        List<String> path = a3.findPath("German Federal Republic", "Poland");
-        for (String str : path) {
-            System.out.print(str + " ");
-        }
-        System.out.println();
+        int distance = a3.getDistance("USA", "Mexico");
         a3.acceptUserInput();
     }
 }

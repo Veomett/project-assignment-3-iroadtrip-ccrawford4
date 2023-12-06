@@ -40,7 +40,6 @@ public class Graph {
     public int getDistance(Node source, Node destination) {
         List<Edge> edges = adjacencyList.get(source);
         for (Edge edge : edges) {
-            System.out.print(edge.destination.getCountryName() + " ");
             if (edge.destination == destination) {
                 return edge.weight;
             }
@@ -56,24 +55,6 @@ public class Graph {
             int weight = findEdgeWeight(path.get(i), path.get(i+1));
             System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
         }
-        /*Map<Node, Node> predecessors = runDijkstra(source);
-        List<Node> path = new ArrayList<>();
-       // runDijkstra(source);
-        Node current = destination;
-
-        while (current != null && current != source) {
-            path.add(current);
-            current = predecessors.get(current);
-        }
-
-        path.add(source);
-        Collections.reverse(path);
-        for (int i = 0; i < path.size() - 1; i++) {
-            String countryOne = path.get(i).getCountryName();
-            String countryTwo = path.get(i + 1).getCountryName();
-            int weight = findEdgeWeight(path.get(i), path.get(i+1));
-            System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
-        }*/
     }
 
     int findEdgeWeight(Node source, Node destination) {
