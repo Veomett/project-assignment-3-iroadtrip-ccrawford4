@@ -69,7 +69,7 @@ public class Graph {
             String countryOne = path.get(i).getCountryName();
             String countryTwo = path.get(i + 1).getCountryName();
             int weight = findEdgeWeight(path.get(i), path.get(i+1));
-            System.out.println("* " + countryOne + "--> " + countryTwo + " (" + weight + " km.)");
+            System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
         }
     }
 

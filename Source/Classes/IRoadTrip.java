@@ -18,8 +18,20 @@ public class IRoadTrip {
             this.nodes = createNodeList(stateNameFile);
             this.neighbors = createNeighborsMap(borderFile);
             this.graph = createGraph(nodes, capDistFile);
+            printNeighbors();
         } catch (Exception e) {
             System.err.println(e.toString());
+        }
+    }
+
+    public void printNeighbors() {
+        for (Node key : neighbors.keySet()) {
+            System.out.println("Country: " + key.getCountryName());
+            System.out.println("Neighbors: ");
+            for (Node neighbor : neighbors.get(key)) {
+                System.out.print(neighbor.getCountryName() + " ");
+            }
+            System.out.println();
         }
     }
 
@@ -58,7 +70,10 @@ public class IRoadTrip {
 
     public Node findNodeFromName(String countryName) {
         for (Node node : nodes) {
-            if (node.getCountryName().contains(countryName)) {
+            if (node.getCountryName().toLowerCase().contains(countryName.toLowerCase())) {
+                return node;
+            }
+            if (node.getStateId().toLowerCase().contains(countryName.toLowerCase())) {
                 return node;
             }
         }
@@ -93,13 +108,13 @@ public class IRoadTrip {
                     char test = segment[index].charAt(0);
                     if (Character.isDigit(test)) {
                         break;
-                    }
-                    else {
+                    } else {
                         countryName += segment[index];
                         countryName += " ";
                     }
                     index++;
                 }
+                countryName = countryName.trim();
                 Node newNode = new Node(stateNumber, stateId, countryName);
 
                 nodes.add(newNode);
@@ -114,9 +129,11 @@ public class IRoadTrip {
         Node source = findNodeFromName(country1);
         Node destination = findNodeFromName(country2);
         if (source == null) {
+            System.out.println("source is null");
             return -1;
         }
         if (destination == null) {
+            System.out.println("destination is null");
             return -1;
         }
         return graph.getDistance(source, destination);
@@ -140,6 +157,7 @@ public class IRoadTrip {
                 Node destination = findNodeFromNumber(stateNumberTwo);
                 int distance = Integer.parseInt(segment[4]);
                 if (neighbors.get(source) != null && neighbors.get(source).contains(destination)) {
+                   // System.out.println("Edge being added between " + source.getCountryName() + " destination: " + destination.getCountryName());
                         graph.addEdge(source, destination, distance);
                     }
                 }
@@ -169,32 +187,36 @@ public class IRoadTrip {
         return graph.findPath(source, destination);
     }
 
-    public void acceptUserInput() {
+    public Node getNodeFromInput(String countryNumber) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.print("Enter the name of the first country (type EXIT to quit): ");
-            String name = scanner.nextLine();
-            Node source = findNodeFromName(name);
-            if (name.equals("EXIT")) {
-                break;
+            System.out.print("Enter the name of the " + countryNumber + " country (type EXIT to quit): ");
+            String countryName = scanner.nextLine();
+            Node node = findNodeFromName(countryName);
+            if (countryName.equals("EXIT")) {
+                return null;
             }
+            if (node == null) {
+                System.out.println("Invalid country name. Please enter a valid country name.");
+                continue;
+            }
+            return node;
+        }
+    }
+    public void acceptUserInput() {
+        while (true) {
+            Node source = getNodeFromInput("first");
             if (source == null) {
-                System.out.println("Invalid country name. Please enter a valid country name.");
-                continue;
+                return;
             }
-            System.out.print("Enter the name of the second country (type EXIT to quit): ");
-            String nameTwo = scanner.nextLine();
-            Node destination = findNodeFromName(nameTwo);
-            if (nameTwo.equals("EXIT")) {
-                break;
-            }
+            Node destination = getNodeFromInput("second");
             if (destination == null) {
-                System.out.println("Invalid country name. Please enter a valid country name.");
-                continue;
+                return;
             }
             System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
             graph.printShortestPath(source, destination);
         }
+
     }
 
     public static void main(String[] args) {
