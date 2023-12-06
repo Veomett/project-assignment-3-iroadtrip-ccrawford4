@@ -235,7 +235,12 @@ public class IRoadTrip {
         if (destination == null) {
             return new ArrayList<>();
         }
-        return graph.findPath(source, destination);
+        List<Node> nodePath = graph.findPath(source, destination);
+        List<String> result = new ArrayList<>();
+        for (Node n : nodePath) {
+            result.add(n.getCountryName());
+        }
+        return result;
     }
 
     public Node getNodeFromInput(String countryNumber) {
@@ -273,6 +278,11 @@ public class IRoadTrip {
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
        // System.out.println(a3.getDistance("Czech Republic", "Russia"));
+       /* List<String> path = a3.findPath("Yemen", "Jordan");
+        for (String str : path) {
+            System.out.print(str + " ");
+        }*/
+        System.out.println();
         a3.acceptUserInput();
     }
 }

@@ -17,7 +17,7 @@ public class FindPathTest {
     public void testTwo() {
         List<String> path = roadTrip.findPath("Yemen", "Jordan");
         List<String> expectedPath = new ArrayList<>();
-        expectedPath.add("Yemen");
+        expectedPath.add("Yemen (Arab Republic of Yemen)");
         expectedPath.add("Saudi Arabia");
         expectedPath.add("Jordan");
         Assert.assertEquals(expectedPath, path);

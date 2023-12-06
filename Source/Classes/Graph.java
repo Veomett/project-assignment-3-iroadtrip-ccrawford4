@@ -18,28 +18,18 @@ public class Graph {
         adjacencyList.get(destination).add(edge);
     }
 
-    List<String> findPath(Node source, Node destination) {
+    List<Node> findPath(Node source, Node destination) {
         Map<Node, Node> predecessors = runDijkstra(source);
-        List<String> stringPath = new ArrayList<>();
-        List<Node> nodePath = new ArrayList<>();
-        runDijkstra(source);
+        List<Node> path = new ArrayList<>();
         Node current = destination;
 
         while (current != null && current != source) {
+            path.add(current);
             current = predecessors.get(current);
         }
-        if (current == null) {
-            return stringPath;
-        }
-        nodePath.add(source);
-        Collections.reverse(nodePath);
-        for (int i = 0; i < nodePath.size() - 1; i+=2) {
-            String countryOne = nodePath.get(i).getCountryName();
-            String countryTwo = nodePath.get(i+1).getCountryName();
-            stringPath.add(countryOne);
-            stringPath.add(countryTwo);
-        }
-        return stringPath;
+        path.add(source);
+        Collections.reverse(path);
+        return path;
     }
 
     public int getDistance(Node source, Node destination) {
@@ -54,9 +44,16 @@ public class Graph {
     }
 
     public void printShortestPath(Node source, Node destination) {
-        Map<Node, Node> predecessors = runDijkstra(source);
+        List<Node> path = findPath(source, destination);
+        for (int i = 0; i < path.size() - 1; i++) {
+            String countryOne = path.get(i).getCountryName();
+            String countryTwo = path.get(i + 1).getCountryName();
+            int weight = findEdgeWeight(path.get(i), path.get(i+1));
+            System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
+        }
+        /*Map<Node, Node> predecessors = runDijkstra(source);
         List<Node> path = new ArrayList<>();
-        runDijkstra(source);
+       // runDijkstra(source);
         Node current = destination;
 
         while (current != null && current != source) {
@@ -71,7 +68,7 @@ public class Graph {
             String countryTwo = path.get(i + 1).getCountryName();
             int weight = findEdgeWeight(path.get(i), path.get(i+1));
             System.out.println("* " + countryOne + " --> " + countryTwo + " (" + weight + " km.)");
-        }
+        }*/
     }
 
     int findEdgeWeight(Node source, Node destination) {
