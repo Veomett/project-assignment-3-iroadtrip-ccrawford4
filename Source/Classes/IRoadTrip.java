@@ -16,26 +16,66 @@ public class IRoadTrip {
         File stateNameFile = new File(basePath + args[2]);
         try {
             this.nodes = createNodeList(stateNameFile);
-            this.neighbors = createNeighborsMap(borderFile);
+            addNeighbors(borderFile);
+           // this.neighbors = createNeighborsMap(borderFile);
             this.graph = createGraph(nodes, capDistFile);
-            printNeighbors();
         } catch (Exception e) {
             System.err.println(e.toString());
         }
     }
 
-    public void printNeighbors() {
-        for (Node key : neighbors.keySet()) {
-            System.out.println("Country: " + key.getCountryName());
-            System.out.println("Neighbors: ");
-            for (Node neighbor : neighbors.get(key)) {
-                System.out.print(neighbor.getCountryName() + " ");
-            }
-            System.out.println();
+    public Node getNodeFromLine(String line, int equalIndex) {
+        if (equalIndex == -1) {
+            return null;
         }
+        String parentName = line.substring(0, equalIndex - 1);
+        return findNodeFromName(parentName);
+    }
+    public void addNeighbors(File borderFile) {
+        try {
+            Scanner stream = new Scanner(borderFile);
+            while (stream.hasNextLine()) {
+                String data = stream.nextLine();
+                int equalIndex = data.indexOf('=');
+                Node n = getNodeFromLine(data, equalIndex);
+                if (!stream.hasNextLine()) {
+                    return;
+                }
+                String[] countries = data.substring(equalIndex + 1).split(";");
+                int semiColonIndex = data.indexOf(';');
+                if (semiColonIndex == -1 && n != null) {
+                    Node neighbor = findNodeFromName(data.substring(equalIndex + 1));
+                    if (neighbor != null) {
+                        n.addNeighbor(n);
+                    }
+                }
+
+                if (countries.length > 2 && n != null) {
+                    for (String country : countries) {
+                        int kmIndex = -1;
+                        for (int i = 0; i < country.length(); i++) {
+                            if (Character.isDigit(country.charAt(i))) {
+                                kmIndex = i;
+                                break;
+                            }
+                        }
+                        String countryName = country.substring(0, kmIndex - 1).trim();
+                        Node neighbor = findNodeFromName(countryName);
+                        if (neighbor != null) {
+                            n.addNeighbor(neighbor);
+                        }
+                    }
+                }
+            }
+
+
+        } catch (FileNotFoundException e) {
+            System.err.println("ERROR! FILE NOT FOUND.");
+        }
+
     }
 
-    public Map<Node, List<Node>> createNeighborsMap(File borderFile) {
+    /*public Map<Node, List<Node>> createNeighborsMap(File borderFile) {
         Map<Node, List<Node>> result = new HashMap<>();
         try {
             Scanner reader = new Scanner(borderFile);
@@ -66,7 +106,7 @@ public class IRoadTrip {
             System.out.println("ERROR FILE NOT FOUND");
         }
         return result;
-    }
+    }*/
 
     public Node findNodeFromName(String countryName) {
         for (Node node : nodes) {
@@ -115,8 +155,11 @@ public class IRoadTrip {
                     index++;
                 }
                 countryName = countryName.trim();
+                if (countryName.contains(",")) {
+                    String[] updatedSegment = countryName.split(",");
+                    countryName = updatedSegment[1].trim() + " " + updatedSegment[0].trim();
+                }
                 Node newNode = new Node(stateNumber, stateId, countryName);
-
                 nodes.add(newNode);
             }
         } catch (FileNotFoundException e) {
@@ -139,6 +182,10 @@ public class IRoadTrip {
         return graph.getDistance(source, destination);
     }
 
+
+    boolean isValidPair(Node nodeA, Node nodeB) {
+        return (nodeA != null) && (nodeB != null) && nodeA.getNeighbors().contains(nodeB);
+    }
     void addEdges(Graph graph, File capDistFile) {
         try {
             Scanner reader = new Scanner(capDistFile);
@@ -156,11 +203,11 @@ public class IRoadTrip {
                 int stateNumberTwo = Integer.parseInt(segment[2]);
                 Node destination = findNodeFromNumber(stateNumberTwo);
                 int distance = Integer.parseInt(segment[4]);
-                if (neighbors.get(source) != null && neighbors.get(source).contains(destination)) {
-                   // System.out.println("Edge being added between " + source.getCountryName() + " destination: " + destination.getCountryName());
-                        graph.addEdge(source, destination, distance);
-                    }
+
+                if (isValidPair(source, destination)) {
+                    graph.addEdge(source, destination, distance);
                 }
+            }
 
         } catch (FileNotFoundException e) {
             System.out.println("ERROR! Capital-Distance File Not Found.");
