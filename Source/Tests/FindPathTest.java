@@ -64,7 +64,6 @@ public class FindPathTest {
         List<String> path = roadTrip.findPath("Brazil", "Argentina");
         List<String> expectedPath = new ArrayList<>();
         expectedPath.add("Brazil");
-        expectedPath.add("Paraguay");
         expectedPath.add("Argentina");
         Assert.assertEquals(expectedPath, path);
     }
@@ -74,23 +73,17 @@ public class FindPathTest {
         List<String> path = roadTrip.findPath("South Africa", "Russia");
         List<String> expectedPath = new ArrayList<>();
         expectedPath.add("South Africa");
-        expectedPath.add("Botswana");
-        expectedPath.add("Zimbabwe");
-        expectedPath.add("Zambia");
-        expectedPath.add("Tanzania");
+        expectedPath.add("Mozambique");
+        expectedPath.add("Tanzania/Tanganyika");
         expectedPath.add("Kenya");
         expectedPath.add("Ethiopia");
         expectedPath.add("Sudan");
         expectedPath.add("Egypt");
         expectedPath.add("Israel");
-        expectedPath.add("Jordan");
         expectedPath.add("Syria");
-        expectedPath.add("Turkey");
-        expectedPath.add("Bulgaria");
-        expectedPath.add("Romania");
-        expectedPath.add("Ukraine");
-        expectedPath.add("Belarus");
-        expectedPath.add("Russia");
+        expectedPath.add("Turkey (Ottoman Empire)");
+        expectedPath.add("Georgia");
+        expectedPath.add("Russia (Soviet Union)");
         Assert.assertEquals(expectedPath, path);
     }
     @Test
@@ -103,10 +96,9 @@ public class FindPathTest {
     }
     @Test
     public void testTen() {
-        List<String> path = roadTrip.findPath("Germany", "Poland");
+        List<String> path = roadTrip.findPath("German Federal Republic", "Poland");
         List<String> expectedPath = new ArrayList<>();
-        expectedPath.add("Germany");
-        expectedPath.add("Czech Republic");
+        expectedPath.add("Germany Federal Republic");
         expectedPath.add("Poland");
         Assert.assertEquals(expectedPath, path);
     }

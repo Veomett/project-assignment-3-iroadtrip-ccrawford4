@@ -18,11 +18,16 @@ public class Graph {
         adjacencyList.get(destination).add(edge);
     }
 
+    public boolean isIsland(Node node) {
+        return node.getNeighbors().size() == 0;
+    }
     List<Node> findPath(Node source, Node destination) {
         Map<Node, Node> predecessors = runDijkstra(source);
         List<Node> path = new ArrayList<>();
+        if (isIsland(source) || isIsland(destination)) {
+            return path;
+        }
         Node current = destination;
-
         while (current != null && current != source) {
             path.add(current);
             current = predecessors.get(current);

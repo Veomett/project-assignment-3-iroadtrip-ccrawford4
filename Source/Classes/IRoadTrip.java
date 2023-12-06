@@ -62,8 +62,8 @@ public class IRoadTrip {
                 int semiColonIndex = data.indexOf(';');
                 if (semiColonIndex == -1 && n != null) {
                     String[] check = data.split("=");
-                    if (check.length > 1) {
-                        Node neighbor = findNodeFromName(getCountryName(check[1]));
+                    if (check.length > 1 && !check[1].equals(" ")) {
+                        Node neighbor = findNodeFromName(getCountryName(check[1]).trim());
                         if (neighbor != null) {
                             n.addNeighbor(n);
                             neighbor.addNeighbor(n);
@@ -278,10 +278,10 @@ public class IRoadTrip {
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
        // System.out.println(a3.getDistance("Czech Republic", "Russia"));
-       /* List<String> path = a3.findPath("Yemen", "Jordan");
+        List<String> path = a3.findPath("German Federal Republic", "Poland");
         for (String str : path) {
             System.out.print(str + " ");
-        }*/
+        }
         System.out.println();
         a3.acceptUserInput();
     }
