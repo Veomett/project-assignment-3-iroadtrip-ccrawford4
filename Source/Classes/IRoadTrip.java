@@ -17,7 +17,6 @@ public class IRoadTrip {
         try {
             this.nodes = createNodeList(stateNameFile);
             addNeighbors(borderFile);
-           // this.neighbors = createNeighborsMap(borderFile);
             this.graph = createGraph(nodes, capDistFile);
         } catch (Exception e) {
             System.err.println(e.toString());
@@ -50,7 +49,9 @@ public class IRoadTrip {
                     }
                 }
 
-                if (countries.length > 2 && n != null) {
+                if (countries.length >= 2 && n != null) {
+                   // System.out.println("Node: " + n.getCountryName());
+                   // System.out.println("Neighbors: ");
                     for (String country : countries) {
                         int kmIndex = -1;
                         for (int i = 0; i < country.length(); i++) {
@@ -60,11 +61,18 @@ public class IRoadTrip {
                             }
                         }
                         String countryName = country.substring(0, kmIndex - 1).trim();
+                        if (countryName.contains("(")) {
+                            int indexOf = countryName.indexOf('(');
+                            countryName = countryName.substring(0, indexOf - 1).trim();
+                        }
+                      //  System.out.print("Country: " + country + "/");
                         Node neighbor = findNodeFromName(countryName);
                         if (neighbor != null) {
+                           // System.out.print(" (Neighbor node: " + neighbor.getCountryName() + ") ");
                             n.addNeighbor(neighbor);
                         }
                     }
+                    System.out.println();
                 }
             }
 
@@ -74,39 +82,6 @@ public class IRoadTrip {
         }
 
     }
-
-    /*public Map<Node, List<Node>> createNeighborsMap(File borderFile) {
-        Map<Node, List<Node>> result = new HashMap<>();
-        try {
-            Scanner reader = new Scanner(borderFile);
-            while (reader.hasNextLine()) {
-                String data = reader.nextLine();
-                int equalIndex = data.indexOf('=');
-                String parentName = data.substring(0, equalIndex - 1);
-                Node parentNode = findNodeFromName(parentName);
-                if (parentNode != null) {
-                    String[] countries = data.substring(equalIndex + 1).split(";");
-                    if (countries.length > 1) {
-                        List<Node> neighbors = new ArrayList<>();
-                        for (String country : countries) {
-                            String[] parts = country.split(" ");
-                            String neighborName = parts[1];
-                            Node neighborNode = findNodeFromName(neighborName);
-                            if (neighborNode != null) {
-                                neighbors.add(neighborNode);
-                            }
-
-                        }
-                        result.put(parentNode, neighbors);
-                    }
-                }
-            }
-        }
-        catch (FileNotFoundException e) {
-            System.out.println("ERROR FILE NOT FOUND");
-        }
-        return result;
-    }*/
 
     public Node findNodeFromName(String countryName) {
         for (Node node : nodes) {
@@ -178,6 +153,9 @@ public class IRoadTrip {
         if (destination == null) {
             System.out.println("destination is null");
             return -1;
+        }
+        if (source == destination) {
+            return 0;
         }
         return graph.getDistance(source, destination);
     }
