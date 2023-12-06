@@ -28,7 +28,27 @@ public class IRoadTrip {
             return null;
         }
         String parentName = line.substring(0, equalIndex - 1);
+      //  System.out.println("Parent Name: " + parentName);
         return findNodeFromName(parentName);
+    }
+
+    public String getCountryName(String data) {
+        int kmIndex = -1;
+        for (int i = 0; i < data.length(); i++) {
+            if (Character.isDigit(data.charAt(i))) {
+                kmIndex = i;
+                break;
+            }
+        }
+        if (kmIndex != -1) {
+            String countryName = data.substring(0, kmIndex - 1).trim();
+            if (countryName.contains("(")) {
+                int indexOf = countryName.indexOf('(');
+                countryName = countryName.substring(0, indexOf - 1).trim();
+            }
+            return countryName;
+        }
+        return data;
     }
     public void addNeighbors(File borderFile) {
         try {
@@ -43,15 +63,22 @@ public class IRoadTrip {
                 String[] countries = data.substring(equalIndex + 1).split(";");
                 int semiColonIndex = data.indexOf(';');
                 if (semiColonIndex == -1 && n != null) {
-                    Node neighbor = findNodeFromName(data.substring(equalIndex + 1));
-                    if (neighbor != null) {
-                        n.addNeighbor(n);
+                    String[] check = data.split("=");
+                   // System.out.println("-------------------------------------");
+                    //System.out.println("Parent: " + n.getCountryName());
+                    if (check.length > 1) {
+                        Node neighbor = findNodeFromName(getCountryName(check[1]));
+                        if (neighbor != null) {
+                            n.addNeighbor(n);
+                            neighbor.addNeighbor(n);
+                        }
                     }
+                   // System.out.println("------------------------------------------------");
                 }
 
-                if (countries.length >= 2 && n != null) {
+                if (semiColonIndex != -1 && countries.length >= 2 && n != null) {
                    // System.out.println("Node: " + n.getCountryName());
-                   // System.out.println("Neighbors: ");
+                  //  System.out.println("Neighbors: ");
                     for (String country : countries) {
                         int kmIndex = -1;
                         for (int i = 0; i < country.length(); i++) {
@@ -65,14 +92,23 @@ public class IRoadTrip {
                             int indexOf = countryName.indexOf('(');
                             countryName = countryName.substring(0, indexOf - 1).trim();
                         }
-                      //  System.out.print("Country: " + country + "/");
+                         // System.out.print("Country: " + country + "/");
                         Node neighbor = findNodeFromName(countryName);
                         if (neighbor != null) {
-                           // System.out.print(" (Neighbor node: " + neighbor.getCountryName() + ") ");
+                            //System.out.print(" (Neighbor node: " + neighbor.getCountryName() + ") ");
                             n.addNeighbor(neighbor);
+                            neighbor.addNeighbor(n);
                         }
                     }
-                    System.out.println();
+                  //  System.out.println();
+                }
+                if (n != null) {
+                   // System.out.println("Neighbors: ");
+                    for (Node neighbor : n.getNeighbors()) {
+                       // System.out.print(neighbor.getCountryName() + " ");
+                    }
+                  //  System.out.println();
+                 //   System.out.println("-------------------------------");
                 }
             }
 
@@ -182,6 +218,14 @@ public class IRoadTrip {
                 Node destination = findNodeFromNumber(stateNumberTwo);
                 int distance = Integer.parseInt(segment[4]);
 
+                if (source != null && destination != null) {
+                   // System.out.println("Node: " + source.getCountryName());
+                    if (source.getCountryName().equals("South Sudan")) {
+                      /*  System.out.println("Source: " + source.getCountryName());
+                        System.out.println("Destination: ");
+                        System.out.println("Distance: " + distance);*/
+                    }
+                }
                 if (isValidPair(source, destination)) {
                     graph.addEdge(source, destination, distance);
                 }

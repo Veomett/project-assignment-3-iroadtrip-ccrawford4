@@ -39,7 +39,7 @@ public class ValidDistanceTest {
     }
     @Test
     public void validDistanceSix() {
-        int distance = roadTrip.getDistance("South Sudan", "Ethiopia");
+        int distance = roadTrip.getDistance("Ethiopia", "Sudan");
         int expectedDistance = 936;
         Assert.assertEquals(expectedDistance, distance);
     }

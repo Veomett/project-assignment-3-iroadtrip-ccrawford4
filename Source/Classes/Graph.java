@@ -44,11 +44,15 @@ public class Graph {
 
     public int getDistance(Node source, Node destination) {
         List<Edge> edges = adjacencyList.get(source);
+       // System.out.println("Source: " + source);
+      //  System.out.println("Edges: ");
         for (Edge edge : edges) {
+            System.out.print(edge.destination.getCountryName() + " ");
             if (edge.destination == destination) {
                 return edge.weight;
             }
         }
+       // System.out.println();
         return -1;
     }
 
