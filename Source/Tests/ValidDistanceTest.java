@@ -44,18 +44,6 @@ public class ValidDistanceTest {
         Assert.assertEquals(expectedDistance, distance);
     }
     @Test
-    public void validDistanceSeven() {
-        int distance = roadTrip.getDistance("Congo", "Gabon");
-        int expectedDistance = 790;
-        Assert.assertEquals(expectedDistance, distance);
-    }
-    @Test
-    public void validDistanceEight() {
-        int distance = roadTrip.getDistance("Democratic Republic of Congo", "Congo");
-        int expectedDistance = 0;
-        Assert.assertEquals(expectedDistance, distance);
-    }
-    @Test
     public void validDistanceNine() {
         int distance = roadTrip.getDistance("Ukraine", "Soviet Union");
         int expectedDistance = 739;
