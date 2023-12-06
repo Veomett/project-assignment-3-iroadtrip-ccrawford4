@@ -90,7 +90,11 @@ public class FindPathTest {
     public void testNine() {
         List<String> path = roadTrip.findPath("Italy", "Greece");
         List<String> expectedPath = new ArrayList<>();
-        expectedPath.add("Italy");
+        expectedPath.add("Italy/Sardinia");
+        expectedPath.add("Slovenia");
+        expectedPath.add("Croatia");
+        expectedPath.add("Montenegro");
+        expectedPath.add("Albania");
         expectedPath.add("Greece");
         Assert.assertEquals(expectedPath, path);
     }
@@ -98,7 +102,7 @@ public class FindPathTest {
     public void testTen() {
         List<String> path = roadTrip.findPath("German Federal Republic", "Poland");
         List<String> expectedPath = new ArrayList<>();
-        expectedPath.add("Germany Federal Republic");
+        expectedPath.add("German Federal Republic");
         expectedPath.add("Poland");
         Assert.assertEquals(expectedPath, path);
     }
