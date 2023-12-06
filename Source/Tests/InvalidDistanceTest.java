@@ -101,5 +101,12 @@ public class InvalidDistanceTest {
         Assert.assertEquals(distance, expectedDistance);
     }
 
+    @Test
+    public void invalidTestEighteen() {
+        int distance = roadTrip.getDistance("Papua New Guinea", "Pakistan");
+        int expectedDistance = -1;
+        Assert.assertEquals(expectedDistance, distance);
+    }
+
 
 }

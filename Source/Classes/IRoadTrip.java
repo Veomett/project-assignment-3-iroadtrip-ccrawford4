@@ -4,7 +4,6 @@ import java.io.FileNotFoundException;
 import java.util.*;
 public class IRoadTrip {
     List<Node> nodes;
-    Map<Node, List<Node>> neighbors;
     Graph graph;
     public IRoadTrip (String [] args) {
         if (args.length < 3) {
@@ -28,7 +27,6 @@ public class IRoadTrip {
             return null;
         }
         String parentName = line.substring(0, equalIndex - 1);
-      //  System.out.println("Parent Name: " + parentName);
         return findNodeFromName(parentName);
     }
 
@@ -64,8 +62,6 @@ public class IRoadTrip {
                 int semiColonIndex = data.indexOf(';');
                 if (semiColonIndex == -1 && n != null) {
                     String[] check = data.split("=");
-                   // System.out.println("-------------------------------------");
-                    //System.out.println("Parent: " + n.getCountryName());
                     if (check.length > 1) {
                         Node neighbor = findNodeFromName(getCountryName(check[1]));
                         if (neighbor != null) {
@@ -73,12 +69,9 @@ public class IRoadTrip {
                             neighbor.addNeighbor(n);
                         }
                     }
-                   // System.out.println("------------------------------------------------");
                 }
 
                 if (semiColonIndex != -1 && countries.length >= 2 && n != null) {
-                   // System.out.println("Node: " + n.getCountryName());
-                  //  System.out.println("Neighbors: ");
                     for (String country : countries) {
                         int kmIndex = -1;
                         for (int i = 0; i < country.length(); i++) {
@@ -92,23 +85,12 @@ public class IRoadTrip {
                             int indexOf = countryName.indexOf('(');
                             countryName = countryName.substring(0, indexOf - 1).trim();
                         }
-                         // System.out.print("Country: " + country + "/");
                         Node neighbor = findNodeFromName(countryName);
                         if (neighbor != null) {
-                            //System.out.print(" (Neighbor node: " + neighbor.getCountryName() + ") ");
                             n.addNeighbor(neighbor);
                             neighbor.addNeighbor(n);
                         }
                     }
-                  //  System.out.println();
-                }
-                if (n != null) {
-                   // System.out.println("Neighbors: ");
-                    for (Node neighbor : n.getNeighbors()) {
-                       // System.out.print(neighbor.getCountryName() + " ");
-                    }
-                  //  System.out.println();
-                 //   System.out.println("-------------------------------");
                 }
             }
 
@@ -124,7 +106,7 @@ public class IRoadTrip {
             if (node.getCountryName().toLowerCase().contains(countryName.toLowerCase())) {
                 return node;
             }
-            if (node.getStateId().toLowerCase().contains(countryName.toLowerCase())) {
+            if (node.getStateId().equalsIgnoreCase(countryName)) {
                 return node;
             }
         }
