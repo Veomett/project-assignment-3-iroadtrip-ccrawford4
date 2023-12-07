@@ -2,6 +2,9 @@ package Source.Classes;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @class EdgeCases - Custom class for handling edge cases in the data
+ */
 public class EdgeCases {
     private Map<String, String> aliases;
     public boolean containsKey(String alias) {

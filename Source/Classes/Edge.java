@@ -1,4 +1,7 @@
 package Source.Classes;
+/**
+ * @class Edge - used in the graph
+ */
 public class Edge {
         Node destination;
         int weight;
