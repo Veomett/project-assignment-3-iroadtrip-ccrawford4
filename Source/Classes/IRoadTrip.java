@@ -37,6 +37,10 @@ public class IRoadTrip {
             return null;
         }
         String parentName = line.substring(0, equalIndex - 1);
+        if (parentName.contains(",")) {
+            String[] parts = parentName.split(",");
+            parentName = parts[1].trim() + " " + parts[0].trim();
+        }
         return findNodeFromName(parentName);
     }
 
@@ -251,6 +255,9 @@ public class IRoadTrip {
         if (source == null || destination == null) {
             return new ArrayList<>();
         }
+        if (source == destination) { // Account for if its equal
+            return new ArrayList<>(List.of(source.getCountryName()));
+        }
         List<Node> nodePath = graph.findPath(source, destination);
         List<String> result = new ArrayList<>();
         for (Node n : nodePath) {
@@ -297,7 +304,7 @@ public class IRoadTrip {
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-        List<String> path = a3.findPath("Canada", "Denmark");
+        List<String> path = a3.findPath("trinidad", "Trinidad and Tobago");
         a3.acceptUserInput();
     }
 }

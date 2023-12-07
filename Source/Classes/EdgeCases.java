@@ -12,14 +12,14 @@ public class EdgeCases {
     }
     EdgeCases() {
         this.aliases = new HashMap<>();
-        // lowercase for better comparisons
+        // lowercase for easier/more accurate comparisons
         aliases.put("united states", "United States of America");
         aliases.put("america", "united States of America");
         aliases.put("the bahamas", "Bahamas");
         aliases.put("bahamas", "Bahamas");
         aliases.put("trinidad and tobago", "Trinidad and Tobago");
-        aliases.put("trinidad", "trinidad");
-        aliases.put("suriname", "surinam");
+        aliases.put("trinidad", "Trinidad and Tobago");
+        aliases.put("suriname", "Surinam");
         aliases.put("uk", "United Kingdom");
         aliases.put("spain (ceuta)", "Spain");
         aliases.put("germany", "German Federal Republic");
@@ -28,11 +28,11 @@ public class EdgeCases {
         aliases.put("macedonia", "Macedonia (Former Yugoslav Republic of)");
         aliases.put("north macedonia", "Macedonia (Former Yugoslav Republic of)");
         aliases.put("bosnia", "Bosnia-Herzegovina");
-        aliases.put("romania", "rumania");
+        aliases.put("romania", "Rumania");
         aliases.put("russia", "Russia (Soviet Union)");
         aliases.put("soviet union", "Russia (Soviet Union)");
-        aliases.put("Russia (Kaliningrad Oblast)", "Russia (Soviet Union)");
-        aliases.put("Lithuania (Kaliningrad Oblast)", "Lithuania");
+        aliases.put("russia (kaliningrad oblast)", "Russia (Soviet Union)");
+        aliases.put("lithuania (kaliningrad oblast)", "Lithuania");
         aliases.put("belarus", "Belarus (Byelorussia)");
         aliases.put("denmark (greenland)", "Denmark");
         aliases.put("the gambia", "Gambia");

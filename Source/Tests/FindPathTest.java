@@ -67,25 +67,13 @@ public class FindPathTest {
         expectedPath.add("Argentina");
         Assert.assertEquals(expectedPath, path);
     }
-
     @Test
     public void testEight() {
-        List<String> path = roadTrip.findPath("South Africa", "Russia");
-        List<String> expectedPath = new ArrayList<>();
-        expectedPath.add("South Africa");
-        expectedPath.add("Mozambique");
-        expectedPath.add("Tanzania/Tanganyika");
-        expectedPath.add("Kenya");
-        expectedPath.add("Ethiopia");
-        expectedPath.add("Sudan");
-        expectedPath.add("Egypt");
-        expectedPath.add("Israel");
-        expectedPath.add("Syria");
-        expectedPath.add("Turkey (Ottoman Empire)");
-        expectedPath.add("Georgia");
-        expectedPath.add("Russia (Soviet Union)");
+        List<String> path = roadTrip.findPath("trinidad", "Trinidad and Tobago");
+        List<String> expectedPath = new ArrayList<>(List.of("Trinidad and Tobago"));
         Assert.assertEquals(expectedPath, path);
     }
+
     @Test
     public void testNine() {
         List<String> path = roadTrip.findPath("Italy", "Greece");
@@ -106,11 +94,66 @@ public class FindPathTest {
         expectedPath.add("Poland");
         Assert.assertEquals(expectedPath, path);
     }
+    @Test
+    public void testEleven() {
+        List<String> path = roadTrip.findPath("Germany", "poland");
+        List<String> expectedPath = new ArrayList<>();
+        expectedPath.add("German Federal Republic");
+        expectedPath.add("Poland");
+        Assert.assertEquals(expectedPath, path);
+    }
 
     @Test
     public void testTwelve() {
         List<String> path = roadTrip.findPath("Canada", "Denmark");
         List<String> expectedPath = new ArrayList<>();
+        Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testThirteen() {
+        List<String> path = roadTrip.findPath("Canada", "Canada");
+        List<String> expectedPath = new ArrayList<>();
+        expectedPath.add("Canada");
+        Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testFourteen() {
+        List<String> path = roadTrip.findPath("Russia (Kaliningrad Oblast)", "lithuania");
+        List<String> expectedPath = new ArrayList<>();
+        expectedPath.add("Russia (Soviet Union)");
+        expectedPath.add("Lithuania");
+        Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testFifteen() {
+        List<String> path = roadTrip.findPath("Iran", "United Arab Emirates");
+        List<String> expectedPath = new ArrayList<>();
+        expectedPath.add("Iran (Persia)");
+        expectedPath.add("Iraq");
+        expectedPath.add("Saudi Arabia");
+        expectedPath.add("United Arab Emirates");
+        Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testSixteen() {
+        List<String> path = roadTrip.findPath("Italy", "Italy/Sardinia");
+        List<String> expectedPath = new ArrayList<>(List.of("Italy/Sardinia"));
+        Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testSeventeen() {
+         List<String> path = roadTrip.findPath("Democratic Republic of the Congo", "Congo");
+         List<String> expectedPath = new ArrayList<>();
+         expectedPath.add("Democratic Republic of (Zaire) Congo");
+         expectedPath.add("Congo");
+         Assert.assertEquals(expectedPath, path);
+    }
+    @Test
+    public void testEighteen() {
+        List<String> path = roadTrip.findPath("north korea", "South Korea");
+        List<String> expectedPath = new ArrayList<>();
+        expectedPath.add("People's Republic of Korea");
+        expectedPath.add("Republic of Korea");
         Assert.assertEquals(expectedPath, path);
     }
 
