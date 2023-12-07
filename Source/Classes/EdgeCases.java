@@ -17,6 +17,7 @@ public class EdgeCases {
         this.aliases = new HashMap<>();
         // lowercase for easier/more accurate comparisons
         aliases.put("united states", "United States of America");
+        aliases.put("us", "United States of America");
         aliases.put("america", "united States of America");
         aliases.put("the bahamas", "Bahamas");
         aliases.put("bahamas", "Bahamas");
