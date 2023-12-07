@@ -3,8 +3,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
 public class IRoadTrip {
-    private List<Node> nodes;
     private Map<String, Node> nameMap;
+    private Map<String, Node> caseMap;
     private Map<String, Node> idMap;
     private Map<Integer, Node> numberMap;
     private Graph graph;
@@ -23,9 +23,10 @@ public class IRoadTrip {
             this.nameMap = new HashMap<>();
             this.numberMap = new HashMap<>();
             this.idMap = new HashMap<>();
-            this.nodes = createNodeList(stateNameFile);
+            this.caseMap = new HashMap<>();
+            createNodeMaps(stateNameFile);
             addNeighbors(borderFile);
-            this.graph = createGraph(nodes, capDistFile);
+            this.graph = createGraph(capDistFile);
         } catch (Exception e) {
             System.err.println(e.toString());
         }
@@ -73,7 +74,7 @@ public class IRoadTrip {
                     String[] check = data.split("=");
                     if (check.length > 1 && !check[1].equals(" ")) {
                         Node neighbor = findNodeFromName(getCountryName(check[1]).trim());
-                        if (neighbor != null) {
+                        if (neighbor != null && notEdgeCase(n, neighbor)) {
                             n.addNeighbor(n);
                             neighbor.addNeighbor(n);
                         }
@@ -95,7 +96,7 @@ public class IRoadTrip {
                             countryName = countryName.substring(0, indexOf - 1).trim();
                         }
                         Node neighbor = findNodeFromName(countryName);
-                        if (neighbor != null) {
+                        if (neighbor != null && notEdgeCase(n, neighbor)) {
                             n.addNeighbor(neighbor);
                             neighbor.addNeighbor(n);
                         }
@@ -110,16 +111,19 @@ public class IRoadTrip {
 
     }
 
-    public Node findNodeFromName(String countryName) {
-        /*for (Node node : nodes) {
-            if (node.getCountryName().toLowerCase().contains(countryName.toLowerCase())) {
-                return node;
-            }
-            if (node.getStateId().equalsIgnoreCase(countryName)) {
-                return node;
-            }
+    public boolean notEdgeCase(Node nodeA, Node nodeB) {
+        if (nodeA.getStateNumber() == 20 &&
+                nodeB.getStateNumber() == 390) {
+            return false;
         }
-        return null;*/
+        if (nodeA.getStateNumber() == 390 &&
+            nodeB.getStateNumber() == 20) {
+            return false;
+        }
+        return true;
+    }
+
+    public Node findNodeFromName(String countryName) {
         if (edgeCases.containsKey(countryName.toLowerCase())) {
             countryName = edgeCases.getFormal(countryName.toLowerCase());
         }
@@ -130,25 +134,21 @@ public class IRoadTrip {
         if (nameMap.containsKey(countryName)) {
             return nameMap.get(countryName);
         }
+        if (caseMap.containsKey(countryName.toLowerCase())) {
+            return caseMap.get(countryName.toLowerCase());
+        }
         return null;
 
     }
 
     public Node findNodeFromNumber(int stateNumber) {
-       /* for (Node node : nodes) {
-            if (node.getStateNumber() == stateNumber) {
-                return node;
-            }
-        }
-        return null;*/
         if (numberMap.containsKey(stateNumber)) {
             return numberMap.get(stateNumber);
         }
         return null;
     }
 
-    List<Node> createNodeList (File stateNameFile) throws Exception {
-        List<Node> nodes = new ArrayList<>();
+    void createNodeMaps (File stateNameFile) throws Exception {
         try {
             Scanner reader = new Scanner(stateNameFile);
             while (reader.hasNextLine()) {
@@ -179,14 +179,13 @@ public class IRoadTrip {
                 }
                 Node newNode = new Node(stateNumber, stateId, countryName);
                 nameMap.put(countryName, newNode);
+                caseMap.put(countryName.toLowerCase(), newNode);
                 numberMap.put(stateNumber, newNode);
                 idMap.put(stateId, newNode);
-                nodes.add(newNode);
             }
         } catch (FileNotFoundException e) {
             throw new FileNotFoundException("Error Parsing File into Node List");
         }
-        return nodes;
     }
 
     public int getDistance (String country1, String country2) {
@@ -206,7 +205,10 @@ public class IRoadTrip {
 
 
     boolean isValidPair(Node nodeA, Node nodeB) {
-        return (nodeA != null) && (nodeB != null) && nodeA.getNeighbors().contains(nodeB);
+        if (nodeA == null || nodeB == null) {
+            return false;
+        }
+        return nodeA.getNeighbors().contains(nodeB);
     }
     void addEdges(Graph graph, File capDistFile) {
         try {
@@ -234,10 +236,10 @@ public class IRoadTrip {
             System.out.println("ERROR! Capital-Distance File Not Found.");
         }
     }
-    Graph createGraph(List<Node> subList, File capDistFile) {
+    Graph createGraph(File capDistFile) {
         Graph graph = new Graph();
-        for (Node n : subList) {
-            graph.addNode(n);
+        for (Node node : nameMap.values()) {
+            graph.addNode(node);
         }
         addEdges(graph, capDistFile);
         return graph;
@@ -246,10 +248,7 @@ public class IRoadTrip {
     public List<String> findPath (String country1, String country2) {
         Node source = findNodeFromName(country1);
         Node destination = findNodeFromName(country2);
-        if (source == null) {
-            return new ArrayList<>();
-        }
-        if (destination == null) {
+        if (source == null || destination == null) {
             return new ArrayList<>();
         }
         List<Node> nodePath = graph.findPath(source, destination);
@@ -286,15 +285,19 @@ public class IRoadTrip {
             if (destination == null) {
                 return;
             }
-            System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
-            graph.printShortestPath(source, destination);
+            if (graph.findPath(source, destination).size() > 0) {
+                System.out.println("Route from " + source.getCountryName() + " to " + destination.getCountryName() + ":");
+                graph.printShortestPath(source, destination);
+            } else {
+                System.out.println("No route exists from " + source.getCountryName() + " to " + destination.getCountryName());
+            }
         }
 
     }
 
     public static void main(String[] args) {
         IRoadTrip a3 = new IRoadTrip(args);
-        int distance = a3.getDistance("USA", "Mexico");
+        List<String> path = a3.findPath("Canada", "Denmark");
         a3.acceptUserInput();
     }
 }

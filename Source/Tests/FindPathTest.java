@@ -107,6 +107,13 @@ public class FindPathTest {
         Assert.assertEquals(expectedPath, path);
     }
 
+    @Test
+    public void testTwelve() {
+        List<String> path = roadTrip.findPath("Canada", "Denmark");
+        List<String> expectedPath = new ArrayList<>();
+        Assert.assertEquals(expectedPath, path);
+    }
+
 
 
 

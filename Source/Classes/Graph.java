@@ -32,6 +32,9 @@ public class Graph {
             path.add(current);
             current = predecessors.get(current);
         }
+        if (current != source) {
+            return new ArrayList<>();
+        }
         path.add(source);
         Collections.reverse(path);
         return path;
